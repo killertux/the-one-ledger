@@ -20,12 +20,12 @@ services:
     app:
         build: .
         restart: unless-stopped
-#        command: php /app/artisan serve --host=0.0.0.0 --port=8001
         tty: true
         expose:
             - "9000"
         volumes:
             - .:/var/www/app:delegated
+        command: composer install && php-fpm
         networks:
             - ledger
     crdb:
