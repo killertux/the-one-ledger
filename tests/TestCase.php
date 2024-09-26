@@ -2,9 +2,39 @@
 
 namespace Tests;
 
+use App\Infra\Repository\Account\AccountRepository;
+use App\Infra\Repository\Transfer\TransferRepository;
+use App\Infra\Utils\Sleeper;
+use Cake\Chronos\Chronos;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Facade;
+use PHPUnit\Framework\Attributes\Before;
 
-abstract class TestCase extends BaseTestCase
-{
-    //
+abstract class TestCase extends BaseTestCase {
+
+    #[before]
+    public function setUpChronos(): void {
+        Chronos::setTestNow(Chronos::createFromTimestamp(Chronos::now()->timestamp));
+    }
+
+    public function getAccountRepository(): AccountRepository {
+        return Facade::getFacadeApplication()->factory(AccountRepository::class)();
+    }
+
+    public function getTransferRepository(): TransferRepository {
+        return Facade::getFacadeApplication()->factory(TransferRepository::class)();
+    }
+
+    public function getSleeper(): Sleeper {
+        return new class implements Sleeper{
+
+            public function sleep(int $milliseconds_to_sleep): void {
+                // NOP
+            }
+        };
+    }
+
+    public function getNow(): Chronos {
+        return Chronos::getTestNow();
+    }
 }
