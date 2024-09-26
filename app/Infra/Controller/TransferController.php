@@ -7,7 +7,7 @@ use App\Application\UseCase\DTO\CreateTransferDtoCollection;
 use App\Application\UseCase\DuplicatedTransfer;
 use App\Application\UseCase\ExecuteTransfers;
 use App\Application\UseCase\GetTransfer;
-use App\Application\UseCase\GetTransferFromAccountAndSequence;
+use App\Application\UseCase\GetTransferFromAccountAndVersion;
 use App\Application\UseCase\ListTransfers;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
@@ -66,10 +66,10 @@ readonly class TransferController {
         return $this->executeCallableAndReturnJson(
             function () use ($request, $account_id) {
                 $limit = (int)$request->query('limit', 100);
-                $before_sequence = $request->query('beforeSequence', null);
+                $before_version = $request->query('beforeVersion');
                 $account_id = Uuid::fromString($account_id);
                 return (new ListTransfers($this->transfer_repository))
-                    ->executeFromCreditAccount($account_id, $limit, $before_sequence ? (int)$before_sequence : null);
+                    ->executeFromCreditAccount($account_id, $limit, $before_version ? (int)$before_version : null);
             },
             200
         );
@@ -79,32 +79,32 @@ readonly class TransferController {
         return $this->executeCallableAndReturnJson(
             function () use ($request, $account_id) {
                 $limit = (int)$request->query('limit', 100);
-                $before_sequence = $request->query('beforeSequence', null);
+                $before_version = $request->query('beforeVersion');
                 $account_id = Uuid::fromString($account_id);
                 return (new ListTransfers($this->transfer_repository))
-                    ->executeFromDebitAccount($account_id, $limit, $before_sequence ? (int)$before_sequence : null);
+                    ->executeFromDebitAccount($account_id, $limit, $before_version ? (int)$before_version : null);
             },
             200
         );
     }
 
-    public function getTransferFromCreditAccountAndSequence(string $account_id, int $sequence): JsonResponse {
+    public function getTransferFromCreditAccountAndVersion(string $account_id, int $version): JsonResponse {
         return $this->executeCallableAndReturnJson(
-            function () use ($account_id, $sequence) {
+            function () use ($account_id, $version) {
                 $account_id = Uuid::fromString($account_id);
-                return (new GetTransferFromAccountAndSequence($this->transfer_repository))
-                    ->executeForCreditAccount($account_id, $sequence);
+                return (new GetTransferFromAccountAndVersion($this->transfer_repository))
+                    ->executeForCreditAccount($account_id, $version);
             },
             200
         );
     }
 
-    public function getTransferFromDebitAccountAndSequence(string $account_id, int $sequence): JsonResponse {
+    public function getTransferFromDebitAccountAndVersion(string $account_id, int $version): JsonResponse {
         return $this->executeCallableAndReturnJson(
-            function () use ($account_id, $sequence) {
+            function () use ($account_id, $version) {
                 $account_id = Uuid::fromString($account_id);
-                return (new GetTransferFromAccountAndSequence($this->transfer_repository))
-                    ->executeForDebitAccount($account_id, $sequence);
+                return (new GetTransferFromAccountAndVersion($this->transfer_repository))
+                    ->executeForDebitAccount($account_id, $version);
             },
             200
         );

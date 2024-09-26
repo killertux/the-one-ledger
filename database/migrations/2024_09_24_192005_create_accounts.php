@@ -14,12 +14,12 @@ return new class extends Migration
         $sql = <<<SQL
         CREATE TABLE accounts(
             id UUID NOT NULL,
-            sequence BIGINT NOT NULL,
+            version BIGINT NOT NULL,
             currency INT NOT NULL,
             debit_amount BIGINT NOT NULL,
             credit_amount BIGINT NOT NULL,
             datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id, sequence)
+            PRIMARY KEY (id, version)
         );
 SQL;
         DB::statement($sql);

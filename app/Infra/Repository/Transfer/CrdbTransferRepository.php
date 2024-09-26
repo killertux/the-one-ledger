@@ -17,9 +17,9 @@ readonly class CrdbTransferRepository implements TransferRepository {
             return [
                 'id' => $transfer->getId(),
                 'debit_account_id' => $transfer->getDebitAccountId(),
-                'debit_sequence' => $transfer->getDebitAccountSequence(),
+                'debit_version' => $transfer->getDebitAccountVersion(),
                 'credit_account_id' => $transfer->getCreditAccountId(),
-                'credit_sequence' => $transfer->getCreditAccountSequence(),
+                'credit_version' => $transfer->getCreditAccountVersion(),
                 'currency' => $transfer->getAmount()->getCurrency(),
                 'amount' => $transfer->getAmount()->getAmount(),
                 'metadata' => json_encode($transfer->getMetadata()),
@@ -41,41 +41,41 @@ readonly class CrdbTransferRepository implements TransferRepository {
         return $this->getTransferFromRow($rows[0]);
     }
 
-    public function listTransfersFromCreditAccount(UuidInterface $account_id, int $limit, ?int $before_sequence): array {
+    public function listTransfersFromCreditAccount(UuidInterface $account_id, int $limit, ?int $before_version): array {
         $sql = 'SELECT * FROM transfers WHERE credit_account_id = ?';
         $params = [$account_id];
-        if ($before_sequence !== null) {
-            $sql .= ' AND credit_sequence < ?';
-            $params[] = $before_sequence;
+        if ($before_version !== null) {
+            $sql .= ' AND credit_version < ?';
+            $params[] = $before_version;
         }
-        $sql .= ' ORDER BY credit_sequence DESC LIMIT ?';
+        $sql .= ' ORDER BY credit_version DESC LIMIT ?';
         $params[] = $limit;
 
         $rows = DB::select($sql, $params);
         return array_map(fn(\stdClass $row) => $this->getTransferFromRow($row), $rows);
     }
 
-    public function listTransfersFromDebitAccount(UuidInterface $account_id, int $limit, ?int $before_sequence): array {
+    public function listTransfersFromDebitAccount(UuidInterface $account_id, int $limit, ?int $before_version): array {
         $sql = 'SELECT * FROM transfers WHERE debit_account_id = ?';
         $params = [$account_id];
-        if ($before_sequence !== null) {
-            $sql .= ' AND debit_sequence < ?';
-            $params[] = $before_sequence;
+        if ($before_version !== null) {
+            $sql .= ' AND debit_version < ?';
+            $params[] = $before_version;
         }
-        $sql .= ' ORDER BY debit_sequence DESC LIMIT ?';
+        $sql .= ' ORDER BY debit_version DESC LIMIT ?';
         $params[] = $limit;
 
         $rows = DB::select($sql, $params);
         return array_map(fn(\stdClass $row) => $this->getTransferFromRow($row), $rows);
     }
 
-    public function getTransferFromCreditAccountAndSequence(UuidInterface $account_id, int $sequence): Transfer {
+    public function getTransferFromCreditAccountAndVersion(UuidInterface $account_id, int $version): Transfer {
         $rows = DB::select(
-            'SELECT * FROM transfers WHERE credit_account_id = ? AND credit_sequence = ?',
-            [$account_id, $sequence]
+            'SELECT * FROM transfers WHERE credit_account_id = ? AND credit_version = ?',
+            [$account_id, $version]
         );
         if (count($rows) === 0) {
-            throw new TransferNotFound("Transfer not found for credit account and sequence: $account_id, $sequence");
+            throw new TransferNotFound("Transfer not found for credit account and version: $account_id, $version");
         }
 
         assert(count($rows) === 1, "ID is unique. So we can only have 1 row");
@@ -83,13 +83,13 @@ readonly class CrdbTransferRepository implements TransferRepository {
         return $this->getTransferFromRow($rows[0]);
     }
 
-    public function getTransferFromDebitAccountAndSequence(UuidInterface $account_id, int $sequence): Transfer {
+    public function getTransferFromDebitAccountAndVersion(UuidInterface $account_id, int $version): Transfer {
         $rows = DB::select(
-            'SELECT * FROM transfers WHERE debit_account_id = ? AND debit_sequence = ?',
-            [$account_id, $sequence]
+            'SELECT * FROM transfers WHERE debit_account_id = ? AND debit_version = ?',
+            [$account_id, $version]
         );
         if (count($rows) === 0) {
-            throw new TransferNotFound("Transfer not found for debit account and sequence: $account_id, $sequence");
+            throw new TransferNotFound("Transfer not found for debit account and version: $account_id, $version");
         }
 
         assert(count($rows) === 1, "ID is unique. So we can only have 1 row");
@@ -101,9 +101,9 @@ readonly class CrdbTransferRepository implements TransferRepository {
         return new Transfer(
             Uuid::fromString($row->id),
             Uuid::fromString($row->debit_account_id),
-            $row->debit_sequence,
+            $row->debit_version,
             Uuid::fromString($row->credit_account_id),
-            $row->credit_sequence,
+            $row->credit_version,
             new Money($row->amount, $row->currency),
             \json_decode($row->metadata),
             Chronos::parse($row->created_at)

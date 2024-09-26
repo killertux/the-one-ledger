@@ -16,15 +16,15 @@ return new class extends Migration
         CREATE TABLE transfers(
             id UUID NOT NULL PRIMARY KEY,
             debit_account_id UUID NOT NULL,
-            debit_sequence INT NOT NULL,
+            debit_version INT NOT NULL,
             credit_account_id UUID NOT NULL,
-            credit_sequence INT NOT NULL,
+            credit_version INT NOT NULL,
             currency INT NOT NULL,
             amount BIGINT NOT NULL,
             metadata JSON NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (debit_account_id, debit_sequence) REFERENCES accounts(id, sequence),
-            FOREIGN KEY (credit_account_id, credit_sequence) REFERENCES accounts(id, sequence)
+            FOREIGN KEY (debit_account_id, debit_version) REFERENCES accounts(id, version),
+            FOREIGN KEY (credit_account_id, credit_version) REFERENCES accounts(id, version)
         );
 SQL;
 

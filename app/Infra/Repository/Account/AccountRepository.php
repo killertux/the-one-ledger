@@ -9,9 +9,9 @@ interface AccountRepository {
 
     public function getAccount(UuidInterface $id): Account;
 
-    public function getAccountWithSequence(UuidInterface $id, int $sequence): Account;
+    public function getAccountWithVersion(UuidInterface $id, int $version): Account;
 
-    public function listAccount(UuidInterface $id, int $limit, ?int $before_sequence = null): array;
+    public function listAccount(UuidInterface $id, int $limit, ?int $before_version = null): array;
 
     /** @param Account[] $accounts */
     public function createAccountMovements(array $accounts): void;

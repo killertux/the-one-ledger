@@ -26,12 +26,12 @@ class GetAccountTest extends TestCase {
             ->execute($account_id, 0);
 
         self::assertEquals($account_id, $get_account->id);
-        self::assertSame(0, $get_account->sequence);
+        self::assertSame(0, $get_account->version);
         self::assertEquals(new Money(0, 1), $get_account->debit_amount);
         self::assertEquals(new Money(0, 1), $get_account->credit_amount);
     }
 
-    public function testGetAccountWithMultipleSequences(): void {
+    public function testGetAccountWithMultipleVersions(): void {
         $account_repository = $this->getAccountRepository();
 
         $account_id = $this->createAccount();
@@ -41,7 +41,7 @@ class GetAccountTest extends TestCase {
             ->execute($account_id, 1);
 
         self::assertEquals($account_id, $get_account->id);
-        self::assertSame(1, $get_account->sequence);
+        self::assertSame(1, $get_account->version);
         self::assertEquals(new Money(0, 1), $get_account->debit_amount);
         self::assertEquals(new Money(100, 1), $get_account->credit_amount);
     }
@@ -57,7 +57,7 @@ class GetAccountTest extends TestCase {
             ->execute($account_id, 0);
     }
 
-    public function testGetAccountForExistentAccountButNonExistentSequence_ShouldThrowError(): void {
+    public function testGetAccountForExistentAccountButNonExistentVersion_ShouldThrowError(): void {
         $account_repository = $this->getAccountRepository();
 
         $account_id = $this->createAccount();

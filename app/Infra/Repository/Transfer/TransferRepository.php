@@ -12,11 +12,11 @@ interface TransferRepository {
 
     public function getTransfer(UuidInterface $transfer_id): Transfer;
 
-    public function listTransfersFromCreditAccount(UuidInterface $account_id, int $limit, ?int $before_sequence): array;
+    public function listTransfersFromCreditAccount(UuidInterface $account_id, int $limit, ?int $before_version): array;
 
-    public function listTransfersFromDebitAccount(UuidInterface $account_id, int $limit, ?int $before_sequence): array;
+    public function listTransfersFromDebitAccount(UuidInterface $account_id, int $limit, ?int $before_version): array;
 
-    public function getTransferFromCreditAccountAndSequence(UuidInterface $account_id, int $sequence): Transfer;
+    public function getTransferFromCreditAccountAndVersion(UuidInterface $account_id, int $version): Transfer;
 
-    public function getTransferFromDebitAccountAndSequence(UuidInterface $account_id, int $sequence): Transfer;
+    public function getTransferFromDebitAccountAndVersion(UuidInterface $account_id, int $version): Transfer;
 }

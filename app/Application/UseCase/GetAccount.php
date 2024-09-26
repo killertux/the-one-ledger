@@ -12,9 +12,9 @@ readonly class GetAccount {
         private AccountRepository $account_repository,
     ) {}
 
-    public function execute(UuidInterface $account_id, int $sequence): AccountDto {
+    public function execute(UuidInterface $account_id, int $version): AccountDto {
         return AccountDto::fromAccount(
-            $this->account_repository->getAccountWithSequence($account_id, $sequence)
+            $this->account_repository->getAccountWithVersion($account_id, $version)
         );
     }
 

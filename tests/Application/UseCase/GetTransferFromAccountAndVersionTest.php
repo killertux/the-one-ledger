@@ -3,20 +3,20 @@
 namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
-use App\Application\UseCase\GetTransferFromAccountAndSequence;
+use App\Application\UseCase\GetTransferFromAccountAndVersion;
 use App\Domain\Money;
 use App\Infra\Repository\Transfer\TransferNotFound;
 use Tests\Support\TransferUtils;
 use Tests\TestCase;
 
-class GetTransferFromAccountAndSequenceTest extends TestCase {
+class GetTransferFromAccountAndVersionTest extends TestCase {
     use TransferUtils;
 
     public function testGetTransferFromCreditAccount(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
         $transfer_id = $this->createTransfer($debit_account_id, $credit_account_id);
-        $response = (new GetTransferFromAccountAndSequence($this->getTransferRepository()))
+        $response = (new GetTransferFromAccountAndVersion($this->getTransferRepository()))
             ->executeForCreditAccount($credit_account_id, 1);
 
         self::assertEquals(new TransferDto(
@@ -35,7 +35,7 @@ class GetTransferFromAccountAndSequenceTest extends TestCase {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
         $transfer_id = $this->createTransfer($debit_account_id, $credit_account_id);
-        $response = (new GetTransferFromAccountAndSequence($this->getTransferRepository()))
+        $response = (new GetTransferFromAccountAndVersion($this->getTransferRepository()))
             ->executeForDebitAccount($debit_account_id, 1);
 
         self::assertEquals(new TransferDto(
@@ -56,8 +56,8 @@ class GetTransferFromAccountAndSequenceTest extends TestCase {
         $this->createTransfer($debit_account_id, $credit_account_id);
 
         $this->expectException(TransferNotFound::class);
-        $this->expectExceptionMessage("Transfer not found for credit account and sequence: $debit_account_id, 1");
-        (new GetTransferFromAccountAndSequence($this->getTransferRepository()))
+        $this->expectExceptionMessage("Transfer not found for credit account and version: $debit_account_id, 1");
+        (new GetTransferFromAccountAndVersion($this->getTransferRepository()))
             ->executeForCreditAccount($debit_account_id, 1);
     }
 
@@ -67,8 +67,8 @@ class GetTransferFromAccountAndSequenceTest extends TestCase {
         $this->createTransfer($debit_account_id, $credit_account_id);
 
         $this->expectException(TransferNotFound::class);
-        $this->expectExceptionMessage("Transfer not found for debit account and sequence: $credit_account_id, 1");
-        (new GetTransferFromAccountAndSequence($this->getTransferRepository()))
+        $this->expectExceptionMessage("Transfer not found for debit account and version: $credit_account_id, 1");
+        (new GetTransferFromAccountAndVersion($this->getTransferRepository()))
             ->executeForDebitAccount($credit_account_id, 1);
     }
 

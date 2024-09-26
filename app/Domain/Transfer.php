@@ -5,17 +5,17 @@ namespace App\Domain;
 use Cake\Chronos\Chronos;
 use Ramsey\Uuid\UuidInterface;
 
-class Transfer {
+readonly class Transfer {
 
     public function __construct(
         private UuidInterface $id,
         private UuidInterface $debit_account_id,
-        private int $debit_sequence,
+        private int           $debit_version,
         private UuidInterface $credit_account_id,
-        private int $credit_sequence,
-        private Money $amount,
-        private \stdClass $metadata,
-        private ?Chronos $created_at = null
+        private int           $credit_version,
+        private Money         $amount,
+        private \stdClass     $metadata,
+        private ?Chronos      $created_at = null
     ) {}
 
     public function getId(): UuidInterface {
@@ -26,16 +26,16 @@ class Transfer {
         return $this->debit_account_id;
     }
 
-    public function getDebitAccountSequence(): int {
-        return $this->debit_sequence;
+    public function getDebitAccountVersion(): int {
+        return $this->debit_version;
     }
 
     public function getCreditAccountId(): UuidInterface {
         return $this->credit_account_id;
     }
 
-    public function getCreditAccountSequence(): int {
-        return $this->credit_sequence;
+    public function getCreditAccountVersion(): int {
+        return $this->credit_version;
     }
 
     public function getAmount(): Money {

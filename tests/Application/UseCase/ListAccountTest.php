@@ -20,7 +20,7 @@ class ListAccountTest extends TestCase {
         self::assertSame([], $response);
     }
 
-    public function testListAccountOnlyOneSequence(): void {
+    public function testListAccountOnlyOneVersion(): void {
         $repository = $this->getAccountRepository();
 
         $account_id = $this->createAccount();
@@ -39,7 +39,7 @@ class ListAccountTest extends TestCase {
         ], $response);
     }
 
-    public function testListWithMultipleSequences_ShouldRespectLimit(): void {
+    public function testListWithMultipleVersions_ShouldRespectLimit(): void {
         $repository = $this->getAccountRepository();
 
         $account_id = $this->createAccount();
@@ -67,7 +67,7 @@ class ListAccountTest extends TestCase {
         ], $response);
     }
 
-    public function testListWithBeforeSequence(): void {
+    public function testListWithBeforeVersion(): void {
         $repository = $this->getAccountRepository();
 
         $account_id = $this->createAccount();

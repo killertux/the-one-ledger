@@ -13,11 +13,11 @@ readonly class ListAccount {
         private AccountRepository $account_repository,
     ) {}
 
-    public function execute(UuidInterface $account_id, int $limit, ?int $before_sequence = null): array {
+    public function execute(UuidInterface $account_id, int $limit, ?int $before_version = null): array {
         $this->validateLimit($limit);
         return array_map(
             fn(Account $account) => AccountDto::fromAccount($account),
-            $this->account_repository->listAccount($account_id, $limit, $before_sequence)
+            $this->account_repository->listAccount($account_id, $limit, $before_version)
         );
     }
 

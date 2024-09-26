@@ -31,12 +31,12 @@ readonly class AccountController {
         );
     }
 
-    public function getAccountWithSequence(string $account_id, int $sequence): JsonResponse {
+    public function getAccountWithVersion(string $account_id, int $version): JsonResponse {
         return $this->executeCallableAndReturnJson(
-            function () use ($account_id, $sequence) {
+            function () use ($account_id, $version) {
                 $account_id = Uuid::fromString($account_id);
                 return (new GetAccount($this->account_repository))
-                    ->execute($account_id, $sequence);
+                    ->execute($account_id, $version);
             }
         );
     }
@@ -44,14 +44,14 @@ readonly class AccountController {
     public function listAccount(Request $request, string $account_id): JsonResponse {
         return $this->executeCallableAndReturnJson(
             function () use ($request, $account_id) {
-                $before_sequence = $request->query('beforeSequence');
+                $before_version = $request->query('beforeVersion');
                 $limit = $request->query('limit') ?? 100;
                 $account_id = Uuid::fromString($account_id);
                 return (new ListAccount($this->account_repository))
                     ->execute(
                         $account_id,
                         (int) $limit,
-                        $before_sequence ? (int) $before_sequence : null
+                        $before_version ? (int) $before_version : null
                     );
             }
         );

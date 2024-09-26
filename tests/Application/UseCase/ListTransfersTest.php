@@ -53,7 +53,7 @@ class ListTransfersTest extends TestCase {
         );
     }
 
-    public function testListTransfersFromCreditAccount_ShouldRespectLimitAndBeforeSequence(): void {
+    public function testListTransfersFromCreditAccount_ShouldRespectLimitAndBeforeVersion(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
         $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(100, 1));
@@ -143,7 +143,7 @@ class ListTransfersTest extends TestCase {
         );
     }
 
-    public function testListTransfersFromDebitAccount_ShouldRespectLimitAndBeforeSequence(): void {
+    public function testListTransfersFromDebitAccount_ShouldRespectLimitAndBeforeVersion(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
         $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(100, 1));

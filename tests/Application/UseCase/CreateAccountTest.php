@@ -18,7 +18,7 @@ class CreateAccountTest extends TestCase {
         $account_dto = $create_account->execute(new CreateAccountDto($account_id, 1));
 
         self::assertEquals($account_id, $account_dto->id);
-        self::assertSame(0, $account_dto->sequence);
+        self::assertSame(0, $account_dto->version);
         self::assertEquals(new Money(0, 1), $account_dto->debit_amount);
         self::assertEquals(new Money(0, 1), $account_dto->credit_amount);
         self::assertEquals($this->getNow(), $account_dto->datetime);

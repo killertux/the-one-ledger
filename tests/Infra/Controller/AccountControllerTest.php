@@ -22,7 +22,7 @@ class AccountControllerTest extends TestCase {
         $response->assertExactJson(
             [
                 'id' => $account_id,
-                'sequence' => 0,
+                'version' => 0,
                 'currency' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 0,
@@ -47,14 +47,14 @@ class AccountControllerTest extends TestCase {
         ]);
     }
 
-    public function testGetAccountWithSequence(): void {
+    public function testGetAccountWithVersion(): void {
         $account_id = $this->createAccount();
         $response = $this->get("/api/v1/account/$account_id/0");
         self::assertEquals(200, $response->getStatusCode());
         $response->assertExactJson(
             [
                 'id' => $account_id,
-                'sequence' => 0,
+                'version' => 0,
                 'currency' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 0,
@@ -64,7 +64,7 @@ class AccountControllerTest extends TestCase {
         );
     }
 
-    public function testGetAccountWithSequenceNotFound(): void {
+    public function testGetAccountWithVersionNotFound(): void {
         $account_id = $this->createAccount();
         $response = $this->get("/api/v1/account/$account_id/1");
         self::assertEquals(404, $response->getStatusCode());
@@ -79,13 +79,13 @@ class AccountControllerTest extends TestCase {
         $this->creditAmountToAccount($account_id, 200);
         $this->creditAmountToAccount($account_id, 300);
 
-        $response = $this->get("/api/v1/account/$account_id?limit=2&beforeSequence=2");
+        $response = $this->get("/api/v1/account/$account_id?limit=2&beforeVersion=2");
 
         self::assertEquals(200, $response->getStatusCode());
         $response->assertExactJson([
             [
                 'id' => $account_id,
-                'sequence' => 1,
+                'version' => 1,
                 'currency' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 100,
@@ -94,7 +94,7 @@ class AccountControllerTest extends TestCase {
             ],
             [
                 'id' => $account_id,
-                'sequence' => 0,
+                'version' => 0,
                 'currency' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 0,

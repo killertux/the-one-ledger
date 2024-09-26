@@ -11,16 +11,16 @@ class AccountDto implements \JsonSerializable {
 
     public function __construct(
         public UuidInterface $id,
-        public int $sequence,
-        public Money $debit_amount,
-        public Money $credit_amount,
-        public Chronos $datetime
+        public int           $version,
+        public Money         $debit_amount,
+        public Money         $credit_amount,
+        public Chronos       $datetime
     ) {}
 
     public static function fromAccount(Account $account): self {
         return new self(
             $account->getId(),
-            $account->getSequence(),
+            $account->getVersion(),
             $account->getDebitAmount(),
             $account->getCreditAmount(),
             $account->getDatetime()
@@ -31,7 +31,7 @@ class AccountDto implements \JsonSerializable {
     public function jsonSerialize(): mixed {
         return [
             'id' => $this->id->toString(),
-            'sequence' => $this->sequence,
+            'version' => $this->version,
             'currency' => $this->debit_amount->getCurrency(),
             'debit_amount' => $this->debit_amount->getAmount(),
             'credit_amount' => $this->credit_amount->getAmount(),

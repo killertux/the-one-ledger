@@ -18,16 +18,16 @@ readonly class CreateTransferDto {
     ) {
     }
 
-    public function intoTrasfer(
-        int $debit_sequence,
-        int $credit_sequence
+    public function intoTransfer(
+        int $debit_version,
+        int $credit_version
     ): Transfer {
         return new Transfer(
             $this->transfer_id,
             $this->debit_account_id,
-            $debit_sequence,
+            $debit_version,
             $this->credit_account_id,
-            $credit_sequence,
+            $credit_version,
             $this->amount,
             $this->metadata,
             Chronos::now(),

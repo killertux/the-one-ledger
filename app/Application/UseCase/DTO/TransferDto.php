@@ -12,21 +12,21 @@ class TransferDto implements \JsonSerializable {
     public function __construct(
         public UuidInterface $id,
         public UuidInterface $debit_account_id,
-        public int $debit_sequence,
+        public int           $debit_version,
         public UuidInterface $credit_account_id,
-        public int $credit_sequence,
-        public Money $amount,
-        public \stdClass $metadata,
-        public ?Chronos $created_at = null
+        public int           $credit_version,
+        public Money         $amount,
+        public \stdClass     $metadata,
+        public ?Chronos      $created_at = null
     ) {}
 
     public static function fromTransfer(Transfer $transfer): self {
         return new self(
             $transfer->getId(),
             $transfer->getDebitAccountId(),
-            $transfer->getDebitAccountSequence(),
+            $transfer->getDebitAccountVersion(),
             $transfer->getCreditAccountId(),
-            $transfer->getCreditAccountSequence(),
+            $transfer->getCreditAccountVersion(),
             $transfer->getAmount(),
             $transfer->getMetadata(),
             $transfer->getCreatedAt()
@@ -38,9 +38,9 @@ class TransferDto implements \JsonSerializable {
         return [
             'id' => $this->id->toString(),
             'debit_account_id' => $this->debit_account_id->toString(),
-            'debit_sequence' => $this->debit_sequence,
+            'debit_version' => $this->debit_version,
             'credit_account_id' => $this->credit_account_id->toString(),
-            'credit_sequence' => $this->credit_sequence,
+            'credit_version' => $this->credit_version,
             'currency' => $this->amount->getCurrency(),
             'amount' => $this->amount->getAmount(),
             'metadata' => $this->metadata,

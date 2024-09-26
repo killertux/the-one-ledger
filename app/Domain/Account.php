@@ -9,10 +9,10 @@ readonly class Account {
 
     public function __construct(
         private UuidInterface $id,
-        private int $sequence,
-        private Money $debit_amount,
-        private Money $credit_amount,
-        private ?Chronos $datetime = null
+        private int           $version,
+        private Money         $debit_amount,
+        private Money         $credit_amount,
+        private ?Chronos      $datetime = null
     ) {}
 
     public function getId(): UuidInterface {
@@ -22,7 +22,7 @@ readonly class Account {
     public function credit(Money $money): Account {
         return new self(
             $this->id,
-            $this->sequence + 1,
+            $this->version + 1,
             $this->debit_amount,
             $this->credit_amount->add($money),
             Chronos::now()
@@ -32,15 +32,15 @@ readonly class Account {
     public function debit(Money $money): Account {
         return new self(
             $this->id,
-            $this->sequence + 1,
+            $this->version + 1,
             $this->debit_amount->add($money),
             $this->credit_amount,
             Chronos::now()
         );
     }
 
-    public function getSequence(): int {
-        return $this->sequence;
+    public function getVersion(): int {
+        return $this->version;
     }
 
     public function getDebitAmount(): Money {

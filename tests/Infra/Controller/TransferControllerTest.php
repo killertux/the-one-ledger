@@ -46,7 +46,7 @@ class TransferControllerTest extends TestCase {
                 'accounts' => [
                     [
                         'id' => $account_1_id,
-                        'sequence' => 1,
+                        'version' => 1,
                         'currency' => 1,
                         'debit_amount' => 100,
                         'credit_amount' => 0,
@@ -55,7 +55,7 @@ class TransferControllerTest extends TestCase {
                     ],
                     [
                         'id' => $account_2_id,
-                        'sequence' => 1,
+                        'version' => 1,
                         'currency' => 1,
                         'debit_amount' => 0,
                         'credit_amount' => 100,
@@ -64,7 +64,7 @@ class TransferControllerTest extends TestCase {
                     ],
                     [
                         'id' => $account_1_id,
-                        'sequence' => 2,
+                        'version' => 2,
                         'currency' => 1,
                         'debit_amount' => 400,
                         'credit_amount' => 0,
@@ -73,7 +73,7 @@ class TransferControllerTest extends TestCase {
                     ],
                     [
                         'id' => $account_2_id,
-                        'sequence' => 2,
+                        'version' => 2,
                         'currency' => 1,
                         'debit_amount' => 0,
                         'credit_amount' => 400,
@@ -86,9 +86,9 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $transfer_1_id,
                         'debit_account_id' => $account_1_id,
-                        'debit_sequence' => 1,
+                        'debit_version' => 1,
                         'credit_account_id' => $account_2_id,
-                        'credit_sequence' => 1,
+                        'credit_version' => 1,
                         'currency' => 1,
                         'amount' => 100,
                         'metadata' => (object)['description' => 'A description'],
@@ -97,9 +97,9 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $transfer_2_id,
                         'debit_account_id' => $account_1_id,
-                        'debit_sequence' => 2,
+                        'debit_version' => 2,
                         'credit_account_id' => $account_2_id,
-                        'credit_sequence' => 2,
+                        'credit_version' => 2,
                         'currency' => 1,
                         'amount' => 300,
                         'metadata' => (object)['description' => 'A description'],
@@ -147,9 +147,9 @@ class TransferControllerTest extends TestCase {
                 [
                     'id' => $transfer_id,
                     'debit_account_id' => $account_1_id,
-                    'debit_sequence' => 1,
+                    'debit_version' => 1,
                     'credit_account_id' => $account_2_id,
-                    'credit_sequence' => 1,
+                    'credit_version' => 1,
                     'currency' => 1,
                     'amount' => 100,
                     'metadata' => [],
@@ -179,7 +179,7 @@ class TransferControllerTest extends TestCase {
         $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id, new Money(150, 1));
         $this->createTransfer($debit_account_id_1, $credit_account_id, new Money(100, 1));
 
-        $response = $this->get("/api/v1/transfer/creditAccount/$credit_account_id?limit=2&beforeSequence=3");
+        $response = $this->get("/api/v1/transfer/credit/$credit_account_id?limit=2&beforeVersion=3");
 
         self::assertEquals(200, $response->getStatusCode());
         $response->assertExactJson(
@@ -187,9 +187,9 @@ class TransferControllerTest extends TestCase {
                 [
                     'id' => $transfer_id_2,
                     'debit_account_id' => $debit_account_id_2,
-                    'debit_sequence' => 1,
+                    'debit_version' => 1,
                     'credit_account_id' => $credit_account_id,
-                    'credit_sequence' => 2,
+                    'credit_version' => 2,
                     'currency' => 1,
                     'amount' => 150,
                     'metadata' => [],
@@ -198,9 +198,9 @@ class TransferControllerTest extends TestCase {
                 [
                     'id' => $transfer_id_1,
                     'debit_account_id' => $debit_account_id_1,
-                    'debit_sequence' => 1,
+                    'debit_version' => 1,
                     'credit_account_id' => $credit_account_id,
-                    'credit_sequence' => 1,
+                    'credit_version' => 1,
                     'currency' => 1,
                     'amount' => 100,
                     'metadata' => [],
@@ -218,7 +218,7 @@ class TransferControllerTest extends TestCase {
         $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id_2, new Money(150, 1));
         $this->createTransfer($debit_account_id, $credit_account_id_1, new Money(100, 1));
 
-        $response = $this->get("/api/v1/transfer/debitAccount/$debit_account_id?limit=2&beforeSequence=3");
+        $response = $this->get("/api/v1/transfer/debit/$debit_account_id?limit=2&beforeVersion=3");
 
         self::assertEquals(200, $response->getStatusCode());
         $response->assertExactJson(
@@ -226,9 +226,9 @@ class TransferControllerTest extends TestCase {
                 [
                     'id' => $transfer_id_2,
                     'debit_account_id' => $debit_account_id,
-                    'debit_sequence' => 2,
+                    'debit_version' => 2,
                     'credit_account_id' => $credit_account_id_2,
-                    'credit_sequence' => 1,
+                    'credit_version' => 1,
                     'currency' => 1,
                     'amount' => 150,
                     'metadata' => [],
@@ -237,9 +237,9 @@ class TransferControllerTest extends TestCase {
                 [
                     'id' => $transfer_id_1,
                     'debit_account_id' => $debit_account_id,
-                    'debit_sequence' => 1,
+                    'debit_version' => 1,
                     'credit_account_id' => $credit_account_id_1,
-                    'credit_sequence' => 1,
+                    'credit_version' => 1,
                     'currency' => 1,
                     'amount' => 100,
                     'metadata' => [],
@@ -249,21 +249,21 @@ class TransferControllerTest extends TestCase {
         );
     }
 
-    public function testGetTransferFromCreditAccountAndSequence(): void {
+    public function testGetTransferFromCreditAccountAndVersion(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
         $transfer_id = $this->createTransfer($debit_account_id, $credit_account_id);
 
-        $response = $this->get("/api/v1/transfer/creditAccount/$credit_account_id/1");
+        $response = $this->get("/api/v1/transfer/credit/$credit_account_id/1");
 
         self::assertEquals(200, $response->getStatusCode());
         $response->assertExactJson(
             [
                 'id' => $transfer_id,
                 'debit_account_id' => $debit_account_id,
-                'debit_sequence' => 1,
+                'debit_version' => 1,
                 'credit_account_id' => $credit_account_id,
-                'credit_sequence' => 1,
+                'credit_version' => 1,
                 'currency' => 1,
                 'amount' => 100,
                 'metadata' => [],
@@ -272,21 +272,21 @@ class TransferControllerTest extends TestCase {
         );
     }
 
-    public function testGetTransferFromDebitAccountAndSequence(): void {
+    public function testGetTransferFromDebitAccountAndVersion(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
         $transfer_id = $this->createTransfer($debit_account_id, $credit_account_id);
 
-        $response = $this->get("/api/v1/transfer/debitAccount/$debit_account_id/1");
+        $response = $this->get("/api/v1/transfer/debit/$debit_account_id/1");
 
         self::assertEquals(200, $response->getStatusCode());
         $response->assertExactJson(
             [
                 'id' => $transfer_id,
                 'debit_account_id' => $debit_account_id,
-                'debit_sequence' => 1,
+                'debit_version' => 1,
                 'credit_account_id' => $credit_account_id,
-                'credit_sequence' => 1,
+                'credit_version' => 1,
                 'currency' => 1,
                 'amount' => 100,
                 'metadata' => [],

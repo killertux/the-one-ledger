@@ -55,7 +55,7 @@ readonly class ExecuteTransfers {
             $credit_account = $list_of_accounts_by_id[$transfer_dto->credit_account_id];
             $debit_account = $debit_account->debit($transfer_dto->amount);
             $credit_account = $credit_account->credit($transfer_dto->amount);
-            $transfer = $transfer_dto->intoTrasfer($debit_account->getSequence(), $credit_account->getSequence());
+            $transfer = $transfer_dto->intoTransfer($debit_account->getVersion(), $credit_account->getVersion());
             $list_of_transfers_to_create[] = $transfer;
             $list_of_accounts_to_create[] = $debit_account;
             $list_of_accounts_to_create[] = $credit_account;

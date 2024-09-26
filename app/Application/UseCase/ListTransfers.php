@@ -13,19 +13,19 @@ class ListTransfers {
         private TransferRepository $transfer_repository,
     ) {}
 
-    public function executeFromCreditAccount(UuidInterface $account_id, int $limit, ?int $beforeSequence =  null): array {
+    public function executeFromCreditAccount(UuidInterface $account_id, int $limit, ?int $before_version =  null): array {
         $this->validateLimit($limit);
         return array_map(
             fn(Transfer $transfer) => TransferDto::fromTransfer($transfer),
-            $this->transfer_repository->listTransfersFromCreditAccount($account_id, $limit, $beforeSequence)
+            $this->transfer_repository->listTransfersFromCreditAccount($account_id, $limit, $before_version)
         );
     }
 
-    public function executeFromDebitAccount(UuidInterface $account_id, int $limit, ?int $beforeSequence =  null): array {
+    public function executeFromDebitAccount(UuidInterface $account_id, int $limit, ?int $before_version =  null): array {
         $this->validateLimit($limit);
         return array_map(
             fn(Transfer $transfer) => TransferDto::fromTransfer($transfer),
-            $this->transfer_repository->listTransfersFromDebitAccount($account_id, $limit, $beforeSequence)
+            $this->transfer_repository->listTransfersFromDebitAccount($account_id, $limit, $before_version)
         );
     }
 

@@ -14,7 +14,7 @@ readonly class CrdbAccountRepository implements AccountRepository {
 
     public function getAccount(UuidInterface $id): Account {
         $rows = DB::select(
-            'SELECT * FROM accounts WHERE id = ? ORDER BY sequence DESC LIMIT 1',
+            'SELECT * FROM accounts WHERE id = ? ORDER BY version DESC LIMIT 1',
             [$id]
         );
         if (count($rows) === 0) {
@@ -30,7 +30,7 @@ readonly class CrdbAccountRepository implements AccountRepository {
             array_map(
                 fn(Account $account) => [
                     'id' => $account->getId(),
-                    'sequence' => $account->getSequence(),
+                    'version' => $account->getVersion(),
                     'currency' => $account->getDebitAmount()->getCurrency(),
                     'debit_amount' => $account->getDebitAmount()->getAmount(),
                     'credit_amount' => $account->getCreditAmount()->getAmount(),
@@ -44,7 +44,7 @@ readonly class CrdbAccountRepository implements AccountRepository {
     public function createAccount(UuidInterface $account_id, int $currency): Account {
         try {
             DB::statement(
-                'INSERT INTO accounts (id, sequence, currency, debit_amount, credit_amount, datetime) VALUES (?, 0, ?, 0, 0, ?)',
+                'INSERT INTO accounts (id, version, currency, debit_amount, credit_amount, datetime) VALUES (?, 0, ?, 0, 0, ?)',
                 [$account_id, $currency, Chronos::now()]
             );
         } catch (UniqueConstraintViolationException $_) {
@@ -53,20 +53,10 @@ readonly class CrdbAccountRepository implements AccountRepository {
         return $this->getAccount($account_id);
     }
 
-    private function getAccountFromRow(\stdClass $row): Account {
-        return new Account(
-            Uuid::fromString($row->id),
-            $row->sequence,
-            new Money($row->debit_amount, $row->currency),
-            new Money($row->credit_amount, $row->currency),
-            Chronos::parse($row->datetime)
-        );
-    }
-
-    public function getAccountWithSequence(UuidInterface $id, int $sequence): Account {
+    public function getAccountWithVersion(UuidInterface $id, int $version): Account {
         $rows = DB::select(
-            'SELECT * FROM accounts WHERE id = ? AND sequence = ?',
-            [$id, $sequence]
+            'SELECT * FROM accounts WHERE id = ? AND version = ?',
+            [$id, $version]
         );
         if (count($rows) === 0) {
             throw new AccountNotFound($id);
@@ -76,16 +66,26 @@ readonly class CrdbAccountRepository implements AccountRepository {
         return $this->getAccountFromRow($rows[0]);
     }
 
-    public function listAccount(UuidInterface $id, int $limit, ?int $before_sequence = null): array {
+    public function listAccount(UuidInterface $id, int $limit, ?int $before_version = null): array {
         $query = 'SELECT * FROM accounts WHERE id = ?';
         $params = [$id];
-        if ($before_sequence !== null) {
-            $query .= ' AND sequence < ?';
-            $params[] = $before_sequence;
+        if ($before_version !== null) {
+            $query .= ' AND version < ?';
+            $params[] = $before_version;
         }
         $params[] = $limit;
-        $query .= ' ORDER BY sequence DESC LIMIT ?';
+        $query .= ' ORDER BY version DESC LIMIT ?';
         $rows = DB::select($query, $params);
         return array_map(fn($row) => $this->getAccountFromRow($row), $rows);
+    }
+
+    private function getAccountFromRow(\stdClass $row): Account {
+        return new Account(
+            Uuid::fromString($row->id),
+            $row->version,
+            new Money($row->debit_amount, $row->currency),
+            new Money($row->credit_amount, $row->currency),
+            Chronos::parse($row->datetime)
+        );
     }
 }
