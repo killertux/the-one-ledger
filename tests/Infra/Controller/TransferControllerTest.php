@@ -2,12 +2,15 @@
 
 namespace Tests\Infra\Controller;
 
+use App\Domain\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
+use Tests\Support\TransferUtils;
 use Tests\TestCase;
 
 class TransferControllerTest extends TestCase {
     use AccountUtils;
+    use TransferUtils;
 
     public function testExecuteTransfer(): void {
         $account_1_id = $this->createAccount();
@@ -128,6 +131,166 @@ class TransferControllerTest extends TestCase {
         $response->assertExactJson(
             [
                 'error' => "Debit and credit account are the same. $account_1_id"
+            ]
+        );
+    }
+
+    public function testGetTransfer(): void {
+        $account_1_id = $this->createAccount();
+        $account_2_id = $this->createAccount();
+        $transfer_id = $this->createTransfer($account_1_id, $account_2_id);
+
+        $response = $this->get("/api/v1/transfer/$transfer_id");
+
+        self::assertEquals(200, $response->getStatusCode());
+        $response->assertExactJson(
+                [
+                    'id' => $transfer_id,
+                    'debit_account_id' => $account_1_id,
+                    'debit_sequence' => 1,
+                    'credit_account_id' => $account_2_id,
+                    'credit_sequence' => 1,
+                    'currency' => 1,
+                    'amount' => 100,
+                    'metadata' => [],
+                    'created_at' => $this->getNow()->toIso8601String(),
+                ]
+            );
+    }
+
+    public function testGetTransferNotFound(): void {
+        $transfer_id = Uuid::uuid4();
+
+        $response = $this->get("/api/v1/transfer/$transfer_id");
+
+        self::assertEquals(404, $response->getStatusCode());
+        $response->assertExactJson(
+            [
+                'error' => "Transfer not found: $transfer_id"
+            ]
+        );
+    }
+
+    public function testListTransferFromCreditAccount(): void {
+        $debit_account_id_1 = $this->createAccount();
+        $debit_account_id_2 = $this->createAccount();
+        $credit_account_id = $this->createAccount();
+        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id, new Money(100, 1));
+        $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id, new Money(150, 1));
+        $this->createTransfer($debit_account_id_1, $credit_account_id, new Money(100, 1));
+
+        $response = $this->get("/api/v1/transfer/creditAccount/$credit_account_id?limit=2&beforeSequence=3");
+
+        self::assertEquals(200, $response->getStatusCode());
+        $response->assertExactJson(
+            [
+                [
+                    'id' => $transfer_id_2,
+                    'debit_account_id' => $debit_account_id_2,
+                    'debit_sequence' => 1,
+                    'credit_account_id' => $credit_account_id,
+                    'credit_sequence' => 2,
+                    'currency' => 1,
+                    'amount' => 150,
+                    'metadata' => [],
+                    'created_at' => $this->getNow()->toIso8601String(),
+                ],
+                [
+                    'id' => $transfer_id_1,
+                    'debit_account_id' => $debit_account_id_1,
+                    'debit_sequence' => 1,
+                    'credit_account_id' => $credit_account_id,
+                    'credit_sequence' => 1,
+                    'currency' => 1,
+                    'amount' => 100,
+                    'metadata' => [],
+                    'created_at' => $this->getNow()->toIso8601String(),
+                ],
+            ]
+        );
+    }
+
+    public function testListTransferFromDebitAccount(): void {
+        $debit_account_id = $this->createAccount();
+        $credit_account_id_1 = $this->createAccount();
+        $credit_account_id_2 = $this->createAccount();
+        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id_1, new Money(100, 1));
+        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id_2, new Money(150, 1));
+        $this->createTransfer($debit_account_id, $credit_account_id_1, new Money(100, 1));
+
+        $response = $this->get("/api/v1/transfer/debitAccount/$debit_account_id?limit=2&beforeSequence=3");
+
+        self::assertEquals(200, $response->getStatusCode());
+        $response->assertExactJson(
+            [
+                [
+                    'id' => $transfer_id_2,
+                    'debit_account_id' => $debit_account_id,
+                    'debit_sequence' => 2,
+                    'credit_account_id' => $credit_account_id_2,
+                    'credit_sequence' => 1,
+                    'currency' => 1,
+                    'amount' => 150,
+                    'metadata' => [],
+                    'created_at' => $this->getNow()->toIso8601String(),
+                ],
+                [
+                    'id' => $transfer_id_1,
+                    'debit_account_id' => $debit_account_id,
+                    'debit_sequence' => 1,
+                    'credit_account_id' => $credit_account_id_1,
+                    'credit_sequence' => 1,
+                    'currency' => 1,
+                    'amount' => 100,
+                    'metadata' => [],
+                    'created_at' => $this->getNow()->toIso8601String(),
+                ],
+            ]
+        );
+    }
+
+    public function testGetTransferFromCreditAccountAndSequence(): void {
+        $debit_account_id = $this->createAccount();
+        $credit_account_id = $this->createAccount();
+        $transfer_id = $this->createTransfer($debit_account_id, $credit_account_id);
+
+        $response = $this->get("/api/v1/transfer/creditAccount/$credit_account_id/1");
+
+        self::assertEquals(200, $response->getStatusCode());
+        $response->assertExactJson(
+            [
+                'id' => $transfer_id,
+                'debit_account_id' => $debit_account_id,
+                'debit_sequence' => 1,
+                'credit_account_id' => $credit_account_id,
+                'credit_sequence' => 1,
+                'currency' => 1,
+                'amount' => 100,
+                'metadata' => [],
+                'created_at' => $this->getNow()->toIso8601String(),
+            ]
+        );
+    }
+
+    public function testGetTransferFromDebitAccountAndSequence(): void {
+        $debit_account_id = $this->createAccount();
+        $credit_account_id = $this->createAccount();
+        $transfer_id = $this->createTransfer($debit_account_id, $credit_account_id);
+
+        $response = $this->get("/api/v1/transfer/debitAccount/$debit_account_id/1");
+
+        self::assertEquals(200, $response->getStatusCode());
+        $response->assertExactJson(
+            [
+                'id' => $transfer_id,
+                'debit_account_id' => $debit_account_id,
+                'debit_sequence' => 1,
+                'credit_account_id' => $credit_account_id,
+                'credit_sequence' => 1,
+                'currency' => 1,
+                'amount' => 100,
+                'metadata' => [],
+                'created_at' => $this->getNow()->toIso8601String(),
             ]
         );
     }

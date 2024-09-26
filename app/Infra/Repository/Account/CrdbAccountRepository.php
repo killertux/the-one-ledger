@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class CrdbAccountRepository implements AccountRepository {
+readonly class CrdbAccountRepository implements AccountRepository {
 
     public function getAccount(UuidInterface $id): Account {
         $rows = DB::select(

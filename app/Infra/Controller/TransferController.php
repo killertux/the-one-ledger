@@ -6,12 +6,16 @@ use App\Application\UseCase\DTO\CreateTransferDto;
 use App\Application\UseCase\DTO\CreateTransferDtoCollection;
 use App\Application\UseCase\DuplicatedTransfer;
 use App\Application\UseCase\ExecuteTransfers;
+use App\Application\UseCase\GetTransfer;
+use App\Application\UseCase\GetTransferFromAccountAndSequence;
+use App\Application\UseCase\ListTransfers;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
 use App\Domain\DifferentCurrency;
 use App\Domain\Money;
 use App\Infra\Repository\Account\AccountNotFound;
 use App\Infra\Repository\Account\AccountRepository;
+use App\Infra\Repository\Transfer\TransferNotFound;
 use App\Infra\Repository\Transfer\TransferRepository;
 use App\Infra\Utils\Sleeper;
 use EBANX\Stream\Stream;
@@ -47,6 +51,65 @@ readonly class TransferController {
         );
     }
 
+    public function getTransfer(string $transfer_id): JsonResponse {
+        return $this->executeCallableAndReturnJson(
+            function () use ($transfer_id) {
+                $transfer_id = Uuid::fromString($transfer_id);
+                return (new GetTransfer($this->transfer_repository))
+                    ->execute($transfer_id);
+            },
+            200
+        );
+    }
+
+    public function listTransferFromCreditAccount(Request $request, string $account_id): JsonResponse {
+        return $this->executeCallableAndReturnJson(
+            function () use ($request, $account_id) {
+                $limit = (int)$request->query('limit', 100);
+                $before_sequence = $request->query('beforeSequence', null);
+                $account_id = Uuid::fromString($account_id);
+                return (new ListTransfers($this->transfer_repository))
+                    ->executeFromCreditAccount($account_id, $limit, $before_sequence ? (int)$before_sequence : null);
+            },
+            200
+        );
+    }
+
+    public function listTransferFromDebitAccount(Request $request, string $account_id): JsonResponse {
+        return $this->executeCallableAndReturnJson(
+            function () use ($request, $account_id) {
+                $limit = (int)$request->query('limit', 100);
+                $before_sequence = $request->query('beforeSequence', null);
+                $account_id = Uuid::fromString($account_id);
+                return (new ListTransfers($this->transfer_repository))
+                    ->executeFromDebitAccount($account_id, $limit, $before_sequence ? (int)$before_sequence : null);
+            },
+            200
+        );
+    }
+
+    public function getTransferFromCreditAccountAndSequence(string $account_id, int $sequence): JsonResponse {
+        return $this->executeCallableAndReturnJson(
+            function () use ($account_id, $sequence) {
+                $account_id = Uuid::fromString($account_id);
+                return (new GetTransferFromAccountAndSequence($this->transfer_repository))
+                    ->executeForCreditAccount($account_id, $sequence);
+            },
+            200
+        );
+    }
+
+    public function getTransferFromDebitAccountAndSequence(string $account_id, int $sequence): JsonResponse {
+        return $this->executeCallableAndReturnJson(
+            function () use ($account_id, $sequence) {
+                $account_id = Uuid::fromString($account_id);
+                return (new GetTransferFromAccountAndSequence($this->transfer_repository))
+                    ->executeForDebitAccount($account_id, $sequence);
+            },
+            200
+        );
+    }
+
     private function executeCallableAndReturnJson(callable $callable, int $status_code): JsonResponse {
         try {
             $response = $callable();
@@ -68,6 +131,9 @@ readonly class TransferController {
         } catch (\InvalidArgumentException $exception) {
             return response()
                 ->json(['error' => $exception->getMessage()], 400);
+        } catch (TransferNotFound $exception) {
+            return response()
+                ->json(['error' => $exception->getMessage()], 404);
         } catch (\Throwable $throwable) {
             return response()
                 ->json(['error' => $throwable->getMessage()], 500);

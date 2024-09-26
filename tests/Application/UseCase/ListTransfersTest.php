@@ -1,0 +1,196 @@
+<?php declare(strict_types=1);
+
+namespace Tests\Application\UseCase;
+
+use App\Application\UseCase\DTO\TransferDto;
+use App\Application\UseCase\ListTransfers;
+use App\Domain\Money;
+use Ramsey\Uuid\Uuid;
+use Tests\Support\AccountUtils;
+use Tests\Support\TransferUtils;
+use Tests\TestCase;
+
+class ListTransfersTest extends TestCase {
+    use TransferUtils;
+    use AccountUtils;
+
+    public function testListTransfersFromCreditAccount(): void {
+        $debit_account_id_1 = $this->createAccount();
+        $debit_account_id_2 = $this->createAccount();
+        $credit_account_id_1 = $this->createAccount();
+        $credit_account_id_2 = $this->createAccount();
+        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id_1, new Money(100, 1));
+        $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id_1, new Money(200, 1));
+        $this->createTransfer($debit_account_id_2, $credit_account_id_2, new Money(200, 1));
+
+        $response = (new ListTransfers($this->getTransferRepository()))
+            ->executeFromCreditAccount($credit_account_id_1, 100);
+
+        self::assertEquals(
+            [
+                new TransferDto(
+                    $transfer_id_2,
+                    $debit_account_id_2,
+                    1,
+                    $credit_account_id_1,
+                    2,
+                    new Money(200, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+                new TransferDto(
+                    $transfer_id_1,
+                    $debit_account_id_1,
+                    1,
+                    $credit_account_id_1,
+                    1,
+                    new Money(100, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+            ],
+            $response
+        );
+    }
+
+    public function testListTransfersFromCreditAccount_ShouldRespectLimitAndBeforeSequence(): void {
+        $debit_account_id = $this->createAccount();
+        $credit_account_id = $this->createAccount();
+        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(100, 1));
+        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(200, 1));
+        $this->createTransfer($debit_account_id, $credit_account_id, new Money(300, 1));
+
+        $response = (new ListTransfers($this->getTransferRepository()))
+            ->executeFromCreditAccount($credit_account_id, 2, 3);
+
+        self::assertEquals(
+            [
+                new TransferDto(
+                    $transfer_id_2,
+                    $debit_account_id,
+                    2,
+                    $credit_account_id,
+                    2,
+                    new Money(200, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+                new TransferDto(
+                    $transfer_id_1,
+                    $debit_account_id,
+                    1,
+                    $credit_account_id,
+                    1,
+                    new Money(100, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+            ],
+            $response
+        );
+    }
+
+    public function testListTransfersFromCreditAccount_LimitGreaterThan100_ShouldThrowException(): void {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Limit must be between 1 and 100');
+        (new ListTransfers($this->getTransferRepository()))
+            ->executeFromCreditAccount(Uuid::uuid4(), 101);
+    }
+
+    public function testListTransfersFromCreditAccount_LimitLessThan1_ShouldThrowException(): void {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Limit must be between 1 and 100');
+        (new ListTransfers($this->getTransferRepository()))
+            ->executeFromCreditAccount(Uuid::uuid4(), 0);
+    }
+
+    public function testListTransfersFromDebitAccount(): void {
+        $debit_account_id_1 = $this->createAccount();
+        $debit_account_id_2 = $this->createAccount();
+        $credit_account_id_1 = $this->createAccount();
+        $credit_account_id_2 = $this->createAccount();
+        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id_1, new Money(100, 1));
+        $transfer_id_2 = $this->createTransfer($debit_account_id_1, $credit_account_id_2, new Money(200, 1));
+        $this->createTransfer($debit_account_id_2, $credit_account_id_2, new Money(200, 1));
+
+        $response = (new ListTransfers($this->getTransferRepository()))
+            ->executeFromDebitAccount($debit_account_id_1, 100);
+
+        self::assertEquals(
+            [
+                new TransferDto(
+                    $transfer_id_2,
+                    $debit_account_id_1,
+                    2,
+                    $credit_account_id_2,
+                    1,
+                    new Money(200, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+                new TransferDto(
+                    $transfer_id_1,
+                    $debit_account_id_1,
+                    1,
+                    $credit_account_id_1,
+                    1,
+                    new Money(100, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+            ],
+            $response
+        );
+    }
+
+    public function testListTransfersFromDebitAccount_ShouldRespectLimitAndBeforeSequence(): void {
+        $debit_account_id = $this->createAccount();
+        $credit_account_id = $this->createAccount();
+        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(100, 1));
+        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(200, 1));
+        $this->createTransfer($debit_account_id, $credit_account_id, new Money(300, 1));
+
+        $response = (new ListTransfers($this->getTransferRepository()))
+            ->executeFromDebitAccount($debit_account_id, 2, 3);
+
+        self::assertEquals(
+            [
+                new TransferDto(
+                    $transfer_id_2,
+                    $debit_account_id,
+                    2,
+                    $credit_account_id,
+                    2,
+                    new Money(200, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+                new TransferDto(
+                    $transfer_id_1,
+                    $debit_account_id,
+                    1,
+                    $credit_account_id,
+                    1,
+                    new Money(100, 1),
+                    (object)[],
+                    $this->getNow(),
+                ),
+            ],
+            $response
+        );
+    }
+
+    public function testListTransfersFromDebitAccount_LimitGreaterThan100_ShouldThrowException(): void {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Limit must be between 1 and 100');
+        (new ListTransfers($this->getTransferRepository()))
+            ->executeFromDebitAccount(Uuid::uuid4(), 101);
+    }
+
+    public function testListTransfersFromDebitAccount_LimitLessThan1_ShouldThrowException(): void {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Limit must be between 1 and 100');
+        (new ListTransfers($this->getTransferRepository()))
+            ->executeFromDebitAccount(Uuid::uuid4(), 0);
+    }
+}
