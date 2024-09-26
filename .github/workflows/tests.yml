@@ -1,0 +1,15 @@
+on: [push, pull_request]
+
+name: Tests and Checks
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+          # Check out the repository
+          - uses: actions/checkout@v4
+
+          # Run Docker Compose Action
+          - uses: adambirds/docker-compose-action@v1.5.0
+            with:
+              test-container: "app"
+              test-command: "sleep 5 && vendor/bin/phpunit"
