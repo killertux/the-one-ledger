@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cp .env.example .env
-./vendor/bin/phpunit
+/var/www/app/vendor/bin/phpunit
