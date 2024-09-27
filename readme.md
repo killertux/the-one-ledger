@@ -154,7 +154,7 @@ HTTP/1.1 201 Created
 
 Request:
 ```http request
-POST/api/v1/transfer
+POST /api/v1/transfer
 Content-Type: application/json
 
 [
