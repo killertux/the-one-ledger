@@ -19,7 +19,7 @@ return new class extends Migration
             debit_amount BIGINT NOT NULL,
             credit_amount BIGINT NOT NULL,
             datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id, version)
+            PRIMARY KEY (id, version DESC)
         );
 SQL;
         DB::statement($sql);
