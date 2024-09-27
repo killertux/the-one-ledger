@@ -150,7 +150,7 @@ HTTP/1.1 201 Created
 }
 ```
 
-### Get an Account with specific sequence
+### Get an Account with specific version
 
 Request:
 ```http request
