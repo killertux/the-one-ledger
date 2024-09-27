@@ -15,6 +15,7 @@ readonly class CreateTransferDto {
         public UuidInterface $credit_account_id,
         public Money $amount,
         public \stdClass $metadata,
+        public array $conditionals = []
     ) {
     }
 

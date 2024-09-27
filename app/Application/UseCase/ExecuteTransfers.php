@@ -7,6 +7,7 @@ use App\Application\UseCase\DTO\CreateTransferDtoCollection;
 use App\Application\UseCase\DTO\ExecuteTransfersResponseDto;
 use App\Application\UseCase\DTO\TransferDto;
 use App\Domain\Account;
+use App\Domain\Conditional\Conditional;
 use App\Domain\InMemoryListOfAccounts;
 use App\Domain\Transfer;
 use App\Infra\Repository\Account\AccountRepository;
@@ -15,6 +16,7 @@ use App\Infra\Utils\Sleeper;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Ramsey\Uuid\UuidInterface;
 
 readonly class ExecuteTransfers {
 
@@ -55,6 +57,7 @@ readonly class ExecuteTransfers {
             $credit_account = $list_of_accounts_by_id[$transfer_dto->credit_account_id];
             $debit_account = $debit_account->debit($transfer_dto->amount);
             $credit_account = $credit_account->credit($transfer_dto->amount);
+            $this->validateConditionals($debit_account, $credit_account, $transfer_dto->transfer_id, $transfer_dto->conditionals);
             $transfer = $transfer_dto->intoTransfer($debit_account->getVersion(), $credit_account->getVersion());
             $list_of_transfers_to_create[] = $transfer;
             $list_of_accounts_to_create[] = $debit_account;
@@ -79,5 +82,25 @@ readonly class ExecuteTransfers {
                 \array_map(fn(Transfer $transfer) => TransferDto::fromTransfer($transfer), $list_of_transfers_to_create),
             );
         }, 3);
+    }
+
+
+    /**
+     * @param Account $debit_account
+     * @param Account $credit_account
+     * @param Conditional[] $conditionals
+     * @return void
+     */
+    private function validateConditionals(
+        Account $debit_account,
+        Account $credit_account,
+        UuidInterface $transfer_id,
+        array $conditionals
+    ): void {
+        foreach ($conditionals as $conditional) {
+            if (!$conditional->check($debit_account, $credit_account)) {
+                throw new ConditionalNotSatisfied("Failed executing transfer {$transfer_id}. " . $conditional->failMessage());
+            }
+        }
     }
 }

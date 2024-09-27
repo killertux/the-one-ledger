@@ -150,6 +150,82 @@ HTTP/1.1 201 Created
 }
 ```
 
+### Execute transfer with conditional 
+
+Request:
+```http request
+POST/api/v1/transfer
+Content-Type: application/json
+
+[
+  {
+    "debit_account_id": "01922614-d5fe-7e15-831e-aa4a351ce9fe",
+    "credit_account_id": "01922614-d5fe-7e15-831e-aa4a351ce9ff",
+    "transfer_id": "01922716-0ac8-7cf6-99e1-be722feb08bd",
+    "currency": 1,
+    "amount": 100,
+    "metadata": {},
+    "conditionals": [
+      {
+        "type": "debit_account_balance_greater_or_equal_than",
+        "value": 0
+      }
+    ]
+  }
+]
+```
+
+Successful Response:
+```
+HTTP/1.1 201 Created
+
+{
+  "accounts": [
+    {
+      "id": "01922614-d5fe-7e15-831e-aa4a351ce9fe",
+      "version": 2,
+      "currency": 1,
+      "debit_amount": 100,
+      "credit_amount": 100,
+      "balance": 0,
+      "datetime": "2024-09-27T16:47:38+00:00"
+    },
+    {
+      "id": "01922614-d5fe-7e15-831e-aa4a351ce9ff",
+      "version": 1,
+      "currency": 1,
+      "debit_amount": 0,
+      "credit_amount": 100,
+      "balance": 100,
+      "datetime": "2024-09-27T16:47:38+00:00"
+    }
+  ],
+  "transfers": [
+    {
+      "id": "01922716-0ac8-7cf6-99e1-be722feb08bd",
+      "debit_account_id": "01922614-d5fe-7e15-831e-aa4a351ce9fe",
+      "debit_version": 2,
+      "credit_account_id": "01922614-d5fe-7e15-831e-aa4a351ce9ff",
+      "credit_version": 1,
+      "currency": 1,
+      "amount": 100,
+      "metadata": {},
+      "created_at": "2024-09-27T16:47:38+00:00"
+    }
+  ]
+}
+```
+
+Failed response:
+```
+HTTP/1.1 409 Conflict
+
+{
+  "error": "Failed executing transfer 01922716-0ac8-7cf6-99e1-be722feb07bf. Debit account balance would be less than 0"
+}
+```
+
+
 ### Get an Account with specific version
 
 Request:
