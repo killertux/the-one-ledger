@@ -294,4 +294,101 @@ class TransferControllerTest extends TestCase {
             ]
         );
     }
+
+    public function testExecuteTransferWithConditionalPassing(): void {
+        $account_1_id = $this->createAccount();
+        $account_2_id = $this->createAccount();
+        $transfer_id = Uuid::uuid4();
+
+        $response = $this->postJson(
+            '/api/v1/transfer',
+            [
+                [
+                    'transfer_id' => $transfer_id,
+                    'debit_account_id' => $account_1_id,
+                    'credit_account_id' => $account_2_id,
+                    'currency' => 1,
+                    'amount' => 100,
+                    'metadata' => (object)['description' => 'A description'],
+                    'conditionals' => [
+                        [
+                            'type' => 'debit_account_balance_greater_or_equal_than',
+                            'value' => -100,
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        self::assertEquals(201, $response->getStatusCode());
+        $response->assertExactJson(
+            [
+                'accounts' => [
+                    [
+                        'id' => $account_1_id,
+                        'version' => 1,
+                        'currency' => 1,
+                        'debit_amount' => 100,
+                        'credit_amount' => 0,
+                        'balance' => -100,
+                        'datetime' => $this->getNow()->toIso8601String(),
+                    ],
+                    [
+                        'id' => $account_2_id,
+                        'version' => 1,
+                        'currency' => 1,
+                        'debit_amount' => 0,
+                        'credit_amount' => 100,
+                        'balance' => 100,
+                        'datetime' => $this->getNow()->toIso8601String(),
+                    ],
+                ],
+                'transfers' => [
+                    [
+                        'id' => $transfer_id,
+                        'debit_account_id' => $account_1_id,
+                        'debit_version' => 1,
+                        'credit_account_id' => $account_2_id,
+                        'credit_version' => 1,
+                        'currency' => 1,
+                        'amount' => 100,
+                        'metadata' => (object)['description' => 'A description'],
+                        'created_at' => $this->getNow()->toIso8601String(),
+                    ],
+                ],
+            ]
+        );
+    }
+
+    public function testExecuteTransferWithConditionalFailing(): void {
+        $account_1_id = $this->createAccount();
+        $account_2_id = $this->createAccount();
+        $transfer_id = Uuid::uuid4();
+
+        $response = $this->postJson(
+            '/api/v1/transfer',
+            [
+                [
+                    'transfer_id' => $transfer_id,
+                    'debit_account_id' => $account_1_id,
+                    'credit_account_id' => $account_2_id,
+                    'currency' => 1,
+                    'amount' => 100,
+                    'metadata' => (object)['description' => 'A description'],
+                    'conditionals' => [
+                        [
+                            'type' => 'debit_account_balance_greater_or_equal_than',
+                            'value' => 0,
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $response->assertExactJson(
+            [
+                'error' => "Failed executing transfer {$transfer_id}. Debit account balance would be less than 0"
+            ]
+        );
+    }
 }

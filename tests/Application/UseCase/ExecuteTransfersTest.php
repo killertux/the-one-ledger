@@ -2,6 +2,7 @@
 
 namespace Tests\Application\UseCase;
 
+use App\Application\UseCase\ConditionalNotSatisfied;
 use App\Application\UseCase\DTO\AccountDto;
 use App\Application\UseCase\DTO\CreateTransferDto;
 use App\Application\UseCase\DTO\CreateTransferDtoCollection;
@@ -13,6 +14,7 @@ use App\Application\UseCase\ListAccount;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
 use App\Domain\Account;
+use App\Domain\Conditional\DebitAccountBalanceGreaterOrEqualThan;
 use App\Domain\Money;
 use App\Infra\Repository\Account\AccountRepository;
 use EBANX\Stream\Stream;
@@ -172,7 +174,65 @@ class ExecuteTransfersTest extends TestCase {
 
     }
 
-    public function createExecuteTransfers(AccountRepository $account_repository = null): ExecuteTransfers {
+    public function testConditionalPassing(): void {
+        $account_1 = $this->createAccount();
+        $account_2 = $this->createAccount();
+
+        $transfer_id = Uuid::uuid4();
+
+        $response = $this->createExecuteTransfers()
+            ->execute(
+                new CreateTransferDtoCollection([
+                    new CreateTransferDto(
+                        $transfer_id,
+                        $account_1,
+                        $account_2,
+                        new Money(100, 1),
+                        (object)['description' => 'some_description 1'],
+                        [new DebitAccountBalanceGreaterOrEqualThan(-100)]
+                    ),
+                ])
+            );
+
+        self::assertEquals(
+            new ExecuteTransfersResponseDto(
+                [
+                    new AccountDto($account_1, 1, new Money(100, 1), new Money(0, 1), $this->getNow()),
+                    new AccountDto($account_2, 1, new Money(0, 1), new Money(100, 1), $this->getNow()),
+                ],
+                [
+                    new TransferDto($transfer_id, $account_1, 1, $account_2, 1, new Money(100, 1), (object)['description' => 'some_description 1'], $this->getNow()),
+                ]
+            ),
+            $response
+        );
+    }
+
+    public function testConditionalNotPassing(): void {
+        $account_1 = $this->createAccount();
+        $account_2 = $this->createAccount();
+
+        $transfer_id = Uuid::uuid4();
+
+        $this->expectException(ConditionalNotSatisfied::class);
+        $this->expectExceptionMessage("Failed executing transfer {$transfer_id}. Debit account balance would be less than 0");
+
+        $this->createExecuteTransfers()
+            ->execute(
+                new CreateTransferDtoCollection([
+                    new CreateTransferDto(
+                        $transfer_id,
+                        $account_1,
+                        $account_2,
+                        new Money(100, 1),
+                        (object)['description' => 'some_description 1'],
+                        [new DebitAccountBalanceGreaterOrEqualThan(0)]
+                    ),
+                ])
+            );
+    }
+
+    private function createExecuteTransfers(AccountRepository $account_repository = null): ExecuteTransfers {
         return new ExecuteTransfers(
             $account_repository ?? $this->getAccountRepository(),
             $this->getTransferRepository(),

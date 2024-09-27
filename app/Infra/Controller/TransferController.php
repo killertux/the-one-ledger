@@ -2,6 +2,7 @@
 
 namespace App\Infra\Controller;
 
+use App\Application\UseCase\ConditionalNotSatisfied;
 use App\Application\UseCase\DTO\CreateTransferDto;
 use App\Application\UseCase\DTO\CreateTransferDtoCollection;
 use App\Application\UseCase\DuplicatedTransfer;
@@ -11,6 +12,7 @@ use App\Application\UseCase\GetTransferFromAccountAndVersion;
 use App\Application\UseCase\ListTransfers;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
+use App\Domain\Conditional\DebitAccountBalanceGreaterOrEqualThan;
 use App\Domain\DifferentCurrency;
 use App\Domain\Money;
 use App\Infra\Repository\Account\AccountNotFound;
@@ -41,6 +43,7 @@ readonly class TransferController {
                         Uuid::fromString($transfer['credit_account_id']),
                         new Money($transfer['amount'], $transfer['currency']),
                         (object) $transfer['metadata'],
+                        self::buildConditionals($transfer['conditionals'] ?? []),
                     ))
                     ->collect();
 
@@ -110,6 +113,16 @@ readonly class TransferController {
         );
     }
 
+    private static function buildConditionals(array $conditionals): array {
+        return Stream::of($conditionals)
+            ->map(function(array $conditional) {
+                return match($conditional['type']) {
+                    'debit_account_balance_greater_or_equal_than' => new DebitAccountBalanceGreaterOrEqualThan((int) $conditional['value']),
+                };
+            })
+            ->collect();
+    }
+
     private function executeCallableAndReturnJson(callable $callable, int $status_code): JsonResponse {
         try {
             $response = $callable();
@@ -134,6 +147,9 @@ readonly class TransferController {
         } catch (TransferNotFound $exception) {
             return response()
                 ->json(['error' => $exception->getMessage()], 404);
+        } catch (ConditionalNotSatisfied $exception) {
+            return response()
+                ->json(['error' => $exception->getMessage()], 409);
         } catch (\Throwable $throwable) {
             return response()
                 ->json(['error' => $throwable->getMessage()], 500);
