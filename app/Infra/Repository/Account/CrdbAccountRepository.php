@@ -14,7 +14,7 @@ readonly class CrdbAccountRepository implements AccountRepository {
 
     public function getAccount(UuidInterface $id): Account {
         $rows = DB::select(
-            'SELECT * FROM accounts WHERE id = ? ORDER BY version DESC LIMIT 1',
+            'SELECT * FROM accounts WHERE id = ? ORDER BY PRIMARY KEY accounts LIMIT 1',
             [$id]
         );
         if (count($rows) === 0) {
@@ -74,7 +74,7 @@ readonly class CrdbAccountRepository implements AccountRepository {
             $params[] = $before_version;
         }
         $params[] = $limit;
-        $query .= ' ORDER BY version DESC LIMIT ?';
+        $query .= ' ORDER BY PRIMARY KEY accounts LIMIT ?';
         $rows = DB::select($query, $params);
         return array_map(fn($row) => $this->getAccountFromRow($row), $rows);
     }
