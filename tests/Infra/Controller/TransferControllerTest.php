@@ -312,7 +312,7 @@ class TransferControllerTest extends TestCase {
                     'metadata' => (object)['description' => 'A description'],
                     'conditionals' => [
                         [
-                            'type' => 'debit_account_balance_greater_or_equal_than',
+                            'type' => 'debit_account_balance_greater_than_or_equal_to',
                             'value' => -100,
                         ],
                     ],
@@ -377,7 +377,7 @@ class TransferControllerTest extends TestCase {
                     'metadata' => (object)['description' => 'A description'],
                     'conditionals' => [
                         [
-                            'type' => 'debit_account_balance_greater_or_equal_than',
+                            'type' => 'debit_account_balance_greater_than_or_equal_to',
                             'value' => 0,
                         ],
                     ],

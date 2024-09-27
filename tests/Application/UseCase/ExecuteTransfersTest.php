@@ -14,7 +14,7 @@ use App\Application\UseCase\ListAccount;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
 use App\Domain\Account;
-use App\Domain\Conditional\DebitAccountBalanceGreaterOrEqualThan;
+use App\Domain\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
 use App\Domain\Money;
 use App\Infra\Repository\Account\AccountRepository;
 use EBANX\Stream\Stream;
@@ -189,7 +189,7 @@ class ExecuteTransfersTest extends TestCase {
                         $account_2,
                         new Money(100, 1),
                         (object)['description' => 'some_description 1'],
-                        [new DebitAccountBalanceGreaterOrEqualThan(-100)]
+                        [new DebitAccountBalanceGreaterThanOrEqualTo(-100)]
                     ),
                 ])
             );
@@ -226,7 +226,7 @@ class ExecuteTransfersTest extends TestCase {
                         $account_2,
                         new Money(100, 1),
                         (object)['description' => 'some_description 1'],
-                        [new DebitAccountBalanceGreaterOrEqualThan(0)]
+                        [new DebitAccountBalanceGreaterThanOrEqualTo(0)]
                     ),
                 ])
             );

@@ -12,7 +12,7 @@ use App\Application\UseCase\GetTransferFromAccountAndVersion;
 use App\Application\UseCase\ListTransfers;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
-use App\Domain\Conditional\DebitAccountBalanceGreaterOrEqualThan;
+use App\Domain\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
 use App\Domain\DifferentCurrency;
 use App\Domain\Money;
 use App\Infra\Repository\Account\AccountNotFound;
@@ -117,7 +117,7 @@ readonly class TransferController {
         return Stream::of($conditionals)
             ->map(function(array $conditional) {
                 return match($conditional['type']) {
-                    'debit_account_balance_greater_or_equal_than' => new DebitAccountBalanceGreaterOrEqualThan((int) $conditional['value']),
+                    'debit_account_balance_greater_than_or_equal_to' => new DebitAccountBalanceGreaterThanOrEqualTo((int) $conditional['value']),
                 };
             })
             ->collect();

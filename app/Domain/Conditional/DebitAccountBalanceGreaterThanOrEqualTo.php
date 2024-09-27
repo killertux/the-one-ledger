@@ -4,7 +4,7 @@ namespace App\Domain\Conditional;
 
 use App\Domain\Account;
 
-readonly class DebitAccountBalanceGreaterOrEqualThan implements Conditional {
+readonly class DebitAccountBalanceGreaterThanOrEqualTo implements Conditional {
 
     public function __construct(
         private int $limit

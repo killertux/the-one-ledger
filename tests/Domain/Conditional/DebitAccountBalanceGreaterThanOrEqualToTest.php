@@ -3,15 +3,15 @@
 namespace Tests\Domain\Conditional;
 
 use App\Domain\Account;
-use App\Domain\Conditional\DebitAccountBalanceGreaterOrEqualThan;
+use App\Domain\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
 use App\Domain\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 
-class DebitAccountBalanceGreaterOrEqualThanTest extends TestCase {
+class DebitAccountBalanceGreaterThanOrEqualToTest extends TestCase {
 
     public function testCheck(): void {
-        $conditional = new DebitAccountBalanceGreaterOrEqualThan(100);
+        $conditional = new DebitAccountBalanceGreaterThanOrEqualTo(100);
         self::assertTrue(
             $conditional->check($this->createAccount(new Money(0, 1), new Money(100, 1)), $this->createAccount())
         );
@@ -27,7 +27,7 @@ class DebitAccountBalanceGreaterOrEqualThanTest extends TestCase {
     }
 
     public function testFailMessage(): void {
-        $conditional = new DebitAccountBalanceGreaterOrEqualThan(100);
+        $conditional = new DebitAccountBalanceGreaterThanOrEqualTo(100);
         self::assertEquals('Debit account balance would be less than 100', $conditional->failMessage());
     }
 
