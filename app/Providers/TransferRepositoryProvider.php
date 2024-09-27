@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
+use App\Domain\Repository\TransferRepository;
 use App\Infra\Repository\Transfer\CrdbTransferRepository;
-use App\Infra\Repository\Transfer\TransferRepository;
 use Illuminate\Support\ServiceProvider;
 
 class TransferRepositoryProvider extends ServiceProvider

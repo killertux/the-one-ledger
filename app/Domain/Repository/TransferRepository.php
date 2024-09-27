@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Infra\Repository\Transfer;
+namespace App\Domain\Repository;
 
-use App\Domain\Transfer;
+use App\Domain\Entity\Transfer;
 use Ramsey\Uuid\UuidInterface;
 
 interface TransferRepository {

@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Domain;
+namespace App\Domain\Entity;
 
-use App\Infra\Repository\Account\AccountRepository;
-use Ramsey\Uuid\UuidInterface;
+use App\Domain\Repository\AccountRepository;
 
 class InMemoryListOfAccounts extends \ArrayObject {
 

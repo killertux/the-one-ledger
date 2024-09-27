@@ -4,8 +4,8 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
 use App\Application\UseCase\GetTransferFromAccountAndVersion;
-use App\Domain\Money;
-use App\Infra\Repository\Transfer\TransferNotFound;
+use App\Domain\Entity\Money;
+use App\Domain\Repository\TransferNotFound;
 use Tests\Support\TransferUtils;
 use Tests\TestCase;
 

@@ -2,8 +2,11 @@
 
 namespace App\Infra\Repository\Account;
 
-use App\Domain\Account;
-use App\Domain\Money;
+use App\Domain\Entity\Account;
+use App\Domain\Entity\Money;
+use App\Domain\Repository\AccountAlreadyExists;
+use App\Domain\Repository\AccountNotFound;
+use App\Domain\Repository\AccountRepository;
 use Cake\Chronos\Chronos;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;

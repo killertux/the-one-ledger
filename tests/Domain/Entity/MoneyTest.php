@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Domain;
+namespace Tests\Domain\Entity;
 
-use App\Domain\DifferentCurrency;
-use App\Domain\Money;
+use App\Domain\Entity\DifferentCurrency;
+use App\Domain\Entity\Money;
 use Tests\TestCase;
 
 class MoneyTest extends TestCase {

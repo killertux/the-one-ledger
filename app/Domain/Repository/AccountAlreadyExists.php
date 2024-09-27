@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Infra\Repository\Account;
+namespace App\Domain\Repository;
 
 use Ramsey\Uuid\UuidInterface;
 

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Infra\Repository\Account\AccountRepository;
+use App\Domain\Repository\AccountRepository;
 use App\Infra\Repository\Account\CrdbAccountRepository;
 use Illuminate\Support\ServiceProvider;
 

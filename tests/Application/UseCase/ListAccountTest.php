@@ -4,7 +4,7 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\AccountDto;
 use App\Application\UseCase\ListAccount;
-use App\Domain\Money;
+use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\TestCase;

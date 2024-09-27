@@ -4,7 +4,7 @@ namespace App\Application\UseCase;
 
 use App\Application\UseCase\DTO\AccountDto;
 use App\Application\UseCase\DTO\CreateAccountDto;
-use App\Infra\Repository\Account\AccountRepository;
+use App\Domain\Repository\AccountRepository;
 
 readonly class CreateAccount {
 

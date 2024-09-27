@@ -4,8 +4,8 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\CreateAccount;
 use App\Application\UseCase\DTO\CreateAccountDto;
-use App\Domain\Money;
-use App\Infra\Repository\Account\AccountAlreadyExists;
+use App\Domain\Entity\Money;
+use App\Domain\Repository\AccountAlreadyExists;
 use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 

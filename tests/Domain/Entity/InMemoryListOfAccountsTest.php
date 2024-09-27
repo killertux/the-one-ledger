@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Domain;
+namespace Tests\Domain\Entity;
 
-use App\Domain\Account;
-use App\Domain\InMemoryListOfAccounts;
-use App\Domain\Money;
-use App\Infra\Repository\Account\AccountNotFound;
-use App\Infra\Repository\Account\AccountRepository;
+use App\Domain\Entity\Account;
+use App\Domain\Entity\InMemoryListOfAccounts;
+use App\Domain\Entity\Money;
+use App\Domain\Repository\AccountNotFound;
+use App\Domain\Repository\AccountRepository;
 use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 

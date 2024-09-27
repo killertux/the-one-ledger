@@ -3,8 +3,8 @@
 namespace App\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
-use App\Domain\Transfer;
-use App\Infra\Repository\Transfer\TransferRepository;
+use App\Domain\Entity\Transfer;
+use App\Domain\Repository\TransferRepository;
 use Ramsey\Uuid\UuidInterface;
 
 class ListTransfers {

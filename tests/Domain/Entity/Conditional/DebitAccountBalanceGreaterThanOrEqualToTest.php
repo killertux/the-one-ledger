@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Domain\Conditional;
+namespace Tests\Domain\Entity\Conditional;
 
-use App\Domain\Account;
-use App\Domain\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
-use App\Domain\Money;
+use App\Domain\Entity\Account;
+use App\Domain\Entity\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
+use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 

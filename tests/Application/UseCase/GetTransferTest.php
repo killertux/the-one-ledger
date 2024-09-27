@@ -4,8 +4,8 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
 use App\Application\UseCase\GetTransfer;
-use App\Domain\Money;
-use App\Infra\Repository\Transfer\TransferNotFound;
+use App\Domain\Entity\Money;
+use App\Domain\Repository\TransferNotFound;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\Support\TransferUtils;

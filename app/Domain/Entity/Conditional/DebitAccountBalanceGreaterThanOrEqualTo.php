@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Domain\Conditional;
+namespace App\Domain\Entity\Conditional;
 
-use App\Domain\Account;
+use App\Domain\Entity\Account;
 
 readonly class DebitAccountBalanceGreaterThanOrEqualTo implements Conditional {
 

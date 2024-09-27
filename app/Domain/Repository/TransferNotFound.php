@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Infra\Repository\Transfer;
-
-use Ramsey\Uuid\UuidInterface;
+namespace App\Domain\Repository;
 
 class TransferNotFound extends \Exception {
 }

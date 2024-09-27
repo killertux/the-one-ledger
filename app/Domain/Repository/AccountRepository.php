@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Infra\Repository\Account;
+namespace App\Domain\Repository;
 
-use App\Domain\Account;
+use App\Domain\Entity\Account;
 use Ramsey\Uuid\UuidInterface;
 
 interface AccountRepository {

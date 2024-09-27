@@ -5,7 +5,7 @@ namespace Tests\Support;
 use App\Application\UseCase\DTO\CreateTransferDto;
 use App\Application\UseCase\DTO\CreateTransferDtoCollection;
 use App\Application\UseCase\ExecuteTransfers;
-use App\Domain\Money;
+use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 

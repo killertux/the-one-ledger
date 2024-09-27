@@ -2,8 +2,10 @@
 
 namespace App\Infra\Repository\Transfer;
 
-use App\Domain\Money;
-use App\Domain\Transfer;
+use App\Domain\Entity\Money;
+use App\Domain\Entity\Transfer;
+use App\Domain\Repository\TransferNotFound;
+use App\Domain\Repository\TransferRepository;
 use Cake\Chronos\Chronos;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;

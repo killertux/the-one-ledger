@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Domain;
+namespace Tests\Domain\Entity;
 
-use App\Domain\Account;
-use App\Domain\Money;
-use Tests\TestCase;
+use App\Domain\Entity\Account;
+use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
+use Tests\TestCase;
 
 class AccountTest extends TestCase {
 

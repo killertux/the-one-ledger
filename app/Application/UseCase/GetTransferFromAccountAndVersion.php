@@ -3,7 +3,7 @@
 namespace App\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
-use App\Infra\Repository\Transfer\TransferRepository;
+use App\Domain\Repository\TransferRepository;
 use Ramsey\Uuid\UuidInterface;
 
 readonly class GetTransferFromAccountAndVersion {

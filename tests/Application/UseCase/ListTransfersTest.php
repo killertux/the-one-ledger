@@ -4,7 +4,7 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
 use App\Application\UseCase\ListTransfers;
-use App\Domain\Money;
+use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\Support\TransferUtils;

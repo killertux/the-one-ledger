@@ -2,7 +2,7 @@
 
 namespace Tests\Infra\Controller;
 
-use App\Domain\Money;
+use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\Support\TransferUtils;

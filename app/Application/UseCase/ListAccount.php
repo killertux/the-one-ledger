@@ -3,8 +3,8 @@
 namespace App\Application\UseCase;
 
 use App\Application\UseCase\DTO\AccountDto;
-use App\Domain\Account;
-use App\Infra\Repository\Account\AccountRepository;
+use App\Domain\Entity\Account;
+use App\Domain\Repository\AccountRepository;
 use Ramsey\Uuid\UuidInterface;
 
 readonly class ListAccount {

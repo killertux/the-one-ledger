@@ -3,7 +3,7 @@
 namespace App\Application\UseCase;
 
 use App\Application\UseCase\DTO\AccountDto;
-use App\Infra\Repository\Account\AccountRepository;
+use App\Domain\Repository\AccountRepository;
 use Ramsey\Uuid\UuidInterface;
 
 readonly class GetAccount {

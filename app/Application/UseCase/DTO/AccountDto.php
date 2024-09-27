@@ -2,8 +2,8 @@
 
 namespace App\Application\UseCase\DTO;
 
-use App\Domain\Account;
-use App\Domain\Money;
+use App\Domain\Entity\Account;
+use App\Domain\Entity\Money;
 use Cake\Chronos\Chronos;
 use Ramsey\Uuid\UuidInterface;
 

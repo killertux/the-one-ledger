@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use App\Infra\Repository\Account\AccountRepository;
-use App\Infra\Repository\Transfer\TransferRepository;
+use App\Domain\Repository\AccountRepository;
+use App\Domain\Repository\TransferRepository;
 use App\Infra\Utils\Sleeper;
 use Cake\Chronos\Chronos;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
