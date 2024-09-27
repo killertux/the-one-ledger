@@ -385,8 +385,6 @@ class TransferControllerTest extends TestCase {
             ]
         );
 
-        var_dump($response->getContent());
-
         $response->assertExactJson(
             [
                 'error' => "Failed executing transfer {$transfer_id}. Debit account balance would be less than 0"
