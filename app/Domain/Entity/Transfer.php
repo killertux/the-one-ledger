@@ -13,7 +13,8 @@ readonly class Transfer {
         private int           $debit_version,
         private UuidInterface $credit_account_id,
         private int           $credit_version,
-        private Money         $amount,
+        private int           $ledger_type,
+        private int           $amount,
         private \stdClass     $metadata,
         private ?Chronos      $created_at = null
     ) {}
@@ -38,7 +39,11 @@ readonly class Transfer {
         return $this->credit_version;
     }
 
-    public function getAmount(): Money {
+    public function getLedgerType(): int {
+        return $this->ledger_type;
+    }
+
+    public function getAmount(): int {
         return $this->amount;
     }
 

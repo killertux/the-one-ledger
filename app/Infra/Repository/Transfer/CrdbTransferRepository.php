@@ -2,7 +2,6 @@
 
 namespace App\Infra\Repository\Transfer;
 
-use App\Domain\Entity\Money;
 use App\Domain\Entity\Transfer;
 use App\Domain\Repository\TransferNotFound;
 use App\Domain\Repository\TransferRepository;
@@ -22,8 +21,8 @@ readonly class CrdbTransferRepository implements TransferRepository {
                 'debit_version' => $transfer->getDebitAccountVersion(),
                 'credit_account_id' => $transfer->getCreditAccountId(),
                 'credit_version' => $transfer->getCreditAccountVersion(),
-                'currency' => $transfer->getAmount()->getCurrency(),
-                'amount' => $transfer->getAmount()->getAmount(),
+                'ledger_type' => $transfer->getLedgerType(),
+                'amount' => $transfer->getAmount(),
                 'metadata' => json_encode($transfer->getMetadata()),
                 'created_at' => $transfer->getCreatedAt(),
             ];
@@ -106,7 +105,8 @@ readonly class CrdbTransferRepository implements TransferRepository {
             $row->debit_version,
             Uuid::fromString($row->credit_account_id),
             $row->credit_version,
-            new Money($row->amount, $row->currency),
+            $row->ledger_type,
+            $row->amount,
             \json_decode($row->metadata),
             Chronos::parse($row->created_at)
         );

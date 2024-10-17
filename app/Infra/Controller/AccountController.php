@@ -24,9 +24,9 @@ readonly class AccountController {
             function () use ($request) {
                 $account_id = $request->string('account_id')->toString();
                 $account_id = Uuid::fromString($account_id);
-                $currency = (int) $request->input('currency');
+                $ledger_type = (int) $request->input('ledger_type');
                 return (new CreateAccount($this->account_repository))
-                    ->execute(new CreateAccountDto($account_id, $currency));
+                    ->execute(new CreateAccountDto($account_id, $ledger_type));
             }
         );
     }

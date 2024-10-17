@@ -3,7 +3,6 @@
 namespace App\Infra\Repository\Account;
 
 use App\Domain\Entity\Account;
-use App\Domain\Entity\Money;
 use App\Domain\Repository\AccountAlreadyExists;
 use App\Domain\Repository\AccountNotFound;
 use App\Domain\Repository\AccountRepository;
@@ -34,9 +33,9 @@ readonly class CrdbAccountRepository implements AccountRepository {
                 fn(Account $account) => [
                     'id' => $account->getId(),
                     'version' => $account->getVersion(),
-                    'currency' => $account->getDebitAmount()->getCurrency(),
-                    'debit_amount' => $account->getDebitAmount()->getAmount(),
-                    'credit_amount' => $account->getCreditAmount()->getAmount(),
+                    'ledger_type' => $account->getLedgerType(),
+                    'debit_amount' => $account->getDebitAmount(),
+                    'credit_amount' => $account->getCreditAmount(),
                     'datetime' => $account->getDatetime()
                 ],
                 $accounts
@@ -44,11 +43,11 @@ readonly class CrdbAccountRepository implements AccountRepository {
         );
     }
 
-    public function createAccount(UuidInterface $account_id, int $currency): Account {
+    public function createAccount(UuidInterface $account_id, int $ledger_type): Account {
         try {
             DB::statement(
-                'INSERT INTO accounts (id, version, currency, debit_amount, credit_amount, datetime) VALUES (?, 0, ?, 0, 0, ?)',
-                [$account_id, $currency, Chronos::now()]
+                'INSERT INTO accounts (id, version, ledger_type, debit_amount, credit_amount, datetime) VALUES (?, 0, ?, 0, 0, ?)',
+                [$account_id, $ledger_type, Chronos::now()]
             );
         } catch (UniqueConstraintViolationException $_) {
             throw new AccountAlreadyExists($account_id);
@@ -86,8 +85,9 @@ readonly class CrdbAccountRepository implements AccountRepository {
         return new Account(
             Uuid::fromString($row->id),
             $row->version,
-            new Money($row->debit_amount, $row->currency),
-            new Money($row->credit_amount, $row->currency),
+            $row->ledger_type,
+            $row->debit_amount,
+            $row->credit_amount,
             Chronos::parse($row->datetime)
         );
     }

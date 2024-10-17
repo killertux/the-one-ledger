@@ -3,7 +3,6 @@
 namespace App\Application\UseCase\DTO;
 
 use App\Domain\Entity\Account;
-use App\Domain\Entity\Money;
 use Cake\Chronos\Chronos;
 use Ramsey\Uuid\UuidInterface;
 
@@ -12,8 +11,9 @@ class AccountDto implements \JsonSerializable {
     public function __construct(
         public UuidInterface $id,
         public int           $version,
-        public Money         $debit_amount,
-        public Money         $credit_amount,
+        public int           $ledger_type,
+        public int           $debit_amount,
+        public int           $credit_amount,
         public Chronos       $datetime
     ) {}
 
@@ -21,6 +21,7 @@ class AccountDto implements \JsonSerializable {
         return new self(
             $account->getId(),
             $account->getVersion(),
+            $account->getLedgerType(),
             $account->getDebitAmount(),
             $account->getCreditAmount(),
             $account->getDatetime()
@@ -32,10 +33,10 @@ class AccountDto implements \JsonSerializable {
         return [
             'id' => $this->id->toString(),
             'version' => $this->version,
-            'currency' => $this->debit_amount->getCurrency(),
-            'debit_amount' => $this->debit_amount->getAmount(),
-            'credit_amount' => $this->credit_amount->getAmount(),
-            'balance' => $this->credit_amount->getAmount() - $this->debit_amount->getAmount(),
+            'ledger_type' => $this->ledger_type,
+            'debit_amount' => $this->debit_amount,
+            'credit_amount' => $this->credit_amount,
+            'balance' => $this->credit_amount - $this->debit_amount,
             'datetime' => $this->datetime->toIso8601String()
         ];
     }

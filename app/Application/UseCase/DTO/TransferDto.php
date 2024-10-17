@@ -2,7 +2,6 @@
 
 namespace App\Application\UseCase\DTO;
 
-use App\Domain\Entity\Money;
 use App\Domain\Entity\Transfer;
 use Cake\Chronos\Chronos;
 use Ramsey\Uuid\UuidInterface;
@@ -15,7 +14,8 @@ class TransferDto implements \JsonSerializable {
         public int           $debit_version,
         public UuidInterface $credit_account_id,
         public int           $credit_version,
-        public Money         $amount,
+        public int           $ledger_type,
+        public int           $amount,
         public \stdClass     $metadata,
         public ?Chronos      $created_at = null
     ) {}
@@ -27,6 +27,7 @@ class TransferDto implements \JsonSerializable {
             $transfer->getDebitAccountVersion(),
             $transfer->getCreditAccountId(),
             $transfer->getCreditAccountVersion(),
+            $transfer->getLedgerType(),
             $transfer->getAmount(),
             $transfer->getMetadata(),
             $transfer->getCreatedAt()
@@ -41,8 +42,8 @@ class TransferDto implements \JsonSerializable {
             'debit_version' => $this->debit_version,
             'credit_account_id' => $this->credit_account_id->toString(),
             'credit_version' => $this->credit_version,
-            'currency' => $this->amount->getCurrency(),
-            'amount' => $this->amount->getAmount(),
+            'ledger_type' => $this->ledger_type,
+            'amount' => $this->amount,
             'metadata' => $this->metadata,
             'created_at' => $this->created_at->toIso8601String()
         ];

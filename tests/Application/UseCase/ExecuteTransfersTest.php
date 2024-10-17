@@ -15,7 +15,6 @@ use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
 use App\Domain\Entity\Account;
 use App\Domain\Entity\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
-use App\Domain\Entity\Money;
 use App\Domain\Repository\AccountRepository;
 use EBANX\Stream\Stream;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -36,21 +35,21 @@ class ExecuteTransfersTest extends TestCase {
         $response = $this->createExecuteTransfers()
             ->execute(
                 new CreateTransferDtoCollection([
-                    new CreateTransferDto($transfer_id_1, $account_1, $account_2, new Money(100, 1), (object)['description' => 'some_description 1']),
-                    new CreateTransferDto($transfer_id_2, $account_2, $account_1, new Money(150, 1), (object)['description' => 'some_description 2']),
+                    new CreateTransferDto($transfer_id_1, $account_1, $account_2, 1, 100, (object)['description' => 'some_description 1']),
+                    new CreateTransferDto($transfer_id_2, $account_2, $account_1, 1, 150, (object)['description' => 'some_description 2']),
                 ])
             );
         self::assertEquals(
             new ExecuteTransfersResponseDto(
                 [
-                    new AccountDto($account_1, 1, new Money(100, 1), new Money(0, 1), $this->getNow()),
-                    new AccountDto($account_2, 1, new Money(0, 1), new Money(100, 1), $this->getNow()),
-                    new AccountDto($account_2, 2, new Money(150, 1), new Money(100, 1),$this->getNow()),
-                    new AccountDto($account_1, 2, new Money(100, 1), new Money(150, 1), $this->getNow()),
+                    new AccountDto($account_1, 1, 1, 100, 0, $this->getNow()),
+                    new AccountDto($account_2, 1, 1, 0, 100, $this->getNow()),
+                    new AccountDto($account_2, 2, 1, 150, 100,$this->getNow()),
+                    new AccountDto($account_1, 2, 1, 100, 150, $this->getNow()),
                 ],
                 [
-                    new TransferDto($transfer_id_1, $account_1, 1, $account_2, 1, new Money(100, 1), (object)['description' => 'some_description 1'], $this->getNow()),
-                    new TransferDto($transfer_id_2, $account_2, 2, $account_1, 2, new Money(150, 1), (object)['description' => 'some_description 2'], $this->getNow()),
+                    new TransferDto($transfer_id_1, $account_1, 1, $account_2, 1, 1, 100, (object)['description' => 'some_description 1'], $this->getNow()),
+                    new TransferDto($transfer_id_2, $account_2, 2, $account_1, 2, 1, 150, (object)['description' => 'some_description 2'], $this->getNow()),
                 ]
             ),
             $response
@@ -69,13 +68,13 @@ class ExecuteTransfersTest extends TestCase {
         $this->createExecuteTransfers()
             ->execute(
                 new CreateTransferDtoCollection([
-                    new CreateTransferDto($transfer_id, $account_1, $account_2, new Money(100, 1), (object)[]),
+                    new CreateTransferDto($transfer_id, $account_1, $account_2, 1, 100, (object)[]),
                 ])
             );
         $this->createExecuteTransfers()
             ->execute(
                 new CreateTransferDtoCollection([
-                    new CreateTransferDto($transfer_id, $account_1, $account_2, new Money(100, 1), (object)[]),
+                    new CreateTransferDto($transfer_id, $account_1, $account_2, 1, 100, (object)[]),
                 ])
             );
     }
@@ -87,7 +86,7 @@ class ExecuteTransfersTest extends TestCase {
         $this->createExecuteTransfers()
             ->execute(
                 new CreateTransferDtoCollection([
-                    new CreateTransferDto(Uuid::uuid4(), $account, $account, new Money(100, 1), (object)[]),
+                    new CreateTransferDto(Uuid::uuid4(), $account, $account, 1, 100, (object)[]),
                 ])
             );
     }
@@ -99,12 +98,12 @@ class ExecuteTransfersTest extends TestCase {
         $account_repository->expects($this->exactly(5))
             ->method('createAccountMovements')
             ->with([
-                new Account($account_1_id, 1, new Money(100, 1), new Money(0, 1), $this->getNow()),
-                new Account($account_2_id, 1, new Money(0, 1), new Money(100, 1), $this->getNow()),
+                new Account($account_1_id, 1, 1, 100, 0, $this->getNow()),
+                new Account($account_2_id, 1, 1, 0, 100, $this->getNow()),
             ])
             ->willThrowException(new UniqueConstraintViolationException('', '', [], new \Exception()));
-        $account_1 = new Account($account_1_id, 0, new Money(0, 1), new Money(0, 1), $this->getNow());
-        $account_2 = new Account($account_2_id, 0, new Money(0, 1), new Money(0, 1), $this->getNow());
+        $account_1 = new Account($account_1_id, 0, 1, 0, 0, $this->getNow());
+        $account_2 = new Account($account_2_id, 0, 1, 0, 0, $this->getNow());
         $account_repository->method('getAccount')
             ->willReturnOnConsecutiveCalls(
                 $account_1, $account_2, $account_1, $account_2, $account_1, $account_2, $account_1, $account_2, $account_1, $account_2,
@@ -115,7 +114,7 @@ class ExecuteTransfersTest extends TestCase {
             $this->createExecuteTransfers($account_repository)
                 ->execute(
                     new CreateTransferDtoCollection([
-                        new CreateTransferDto($transfer_id, $account_1_id, $account_2_id, new Money(100, 1), (object)[]),
+                        new CreateTransferDto($transfer_id, $account_1_id, $account_2_id, 1, 100, (object)[]),
                     ])
                 );
         } catch (OptimisticLockError $error) {
@@ -135,7 +134,7 @@ class ExecuteTransfersTest extends TestCase {
         $this->createExecuteTransfers()
             ->execute(
                 new CreateTransferDtoCollection([
-                    new CreateTransferDto($transfer_id_2, $account_1, $account_2, new Money(100, 1), (object)['description' => 'some_description 1']),
+                    new CreateTransferDto($transfer_id_2, $account_1, $account_2, 1, 100, (object)['description' => 'some_description 1']),
                 ])
             );
 
@@ -143,8 +142,8 @@ class ExecuteTransfersTest extends TestCase {
             $this->createExecuteTransfers()
                 ->execute(
                     new CreateTransferDtoCollection([
-                        new CreateTransferDto($transfer_id_1, $account_1, $account_2, new Money(100, 1), (object)['description' => 'some_description 1']),
-                        new CreateTransferDto($transfer_id_2, $account_2, $account_1, new Money(150, 1), (object)['description' => 'some_description 2']),
+                        new CreateTransferDto($transfer_id_1, $account_1, $account_2, 1, 100, (object)['description' => 'some_description 1']),
+                        new CreateTransferDto($transfer_id_2, $account_2, $account_1, 1, 150, (object)['description' => 'some_description 2']),
                     ])
                 );
         } catch (DuplicatedTransfer $error) {
@@ -167,7 +166,7 @@ class ExecuteTransfersTest extends TestCase {
             ->execute(
                 new CreateTransferDtoCollection(
                     Stream::rangeInt(0, 31)
-                        ->map(fn() => new CreateTransferDto(Uuid::uuid4(), $account_1, $account_2, new Money(100, 1), (object)[]))
+                        ->map(fn() => new CreateTransferDto(Uuid::uuid4(), $account_1, $account_2, 1, 100, (object)[]))
                         ->collect()
                    )
             );
@@ -187,7 +186,8 @@ class ExecuteTransfersTest extends TestCase {
                         $transfer_id,
                         $account_1,
                         $account_2,
-                        new Money(100, 1),
+                        1,
+                        100,
                         (object)['description' => 'some_description 1'],
                         [new DebitAccountBalanceGreaterThanOrEqualTo(-100)]
                     ),
@@ -197,11 +197,11 @@ class ExecuteTransfersTest extends TestCase {
         self::assertEquals(
             new ExecuteTransfersResponseDto(
                 [
-                    new AccountDto($account_1, 1, new Money(100, 1), new Money(0, 1), $this->getNow()),
-                    new AccountDto($account_2, 1, new Money(0, 1), new Money(100, 1), $this->getNow()),
+                    new AccountDto($account_1, 1, 1, 100, 0, $this->getNow()),
+                    new AccountDto($account_2, 1, 1, 0, 100, $this->getNow()),
                 ],
                 [
-                    new TransferDto($transfer_id, $account_1, 1, $account_2, 1, new Money(100, 1), (object)['description' => 'some_description 1'], $this->getNow()),
+                    new TransferDto($transfer_id, $account_1, 1, $account_2, 1, 1, 100, (object)['description' => 'some_description 1'], $this->getNow()),
                 ]
             ),
             $response
@@ -224,7 +224,8 @@ class ExecuteTransfersTest extends TestCase {
                         $transfer_id,
                         $account_1,
                         $account_2,
-                        new Money(100, 1),
+                        1,
+                        100,
                         (object)['description' => 'some_description 1'],
                         [new DebitAccountBalanceGreaterThanOrEqualTo(0)]
                     ),

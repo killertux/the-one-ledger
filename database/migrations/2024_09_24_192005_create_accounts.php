@@ -15,7 +15,7 @@ return new class extends Migration
         CREATE TABLE accounts(
             id UUID NOT NULL,
             version BIGINT NOT NULL,
-            currency INT NOT NULL,
+            ledger_type INT NOT NULL,
             debit_amount BIGINT NOT NULL,
             credit_amount BIGINT NOT NULL,
             datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

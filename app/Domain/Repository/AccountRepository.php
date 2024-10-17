@@ -16,5 +16,5 @@ interface AccountRepository {
     /** @param Account[] $accounts */
     public function createAccountMovements(array $accounts): void;
 
-    public function createAccount(UuidInterface $account_id, int $currency): Account;
+    public function createAccount(UuidInterface $account_id, int $ledger_type): Account;
 }

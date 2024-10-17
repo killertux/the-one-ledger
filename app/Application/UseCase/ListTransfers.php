@@ -7,7 +7,7 @@ use App\Domain\Entity\Transfer;
 use App\Domain\Repository\TransferRepository;
 use Ramsey\Uuid\UuidInterface;
 
-class ListTransfers {
+readonly class ListTransfers {
 
     public function __construct(
         private TransferRepository $transfer_repository,

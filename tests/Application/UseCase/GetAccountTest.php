@@ -6,7 +6,6 @@ use App\Application\UseCase\DTO\CreateTransferDto;
 use App\Application\UseCase\DTO\CreateTransferDtoCollection;
 use App\Application\UseCase\ExecuteTransfers;
 use App\Application\UseCase\GetAccount;
-use App\Domain\Entity\Money;
 use App\Domain\Repository\AccountNotFound;
 use App\Domain\Repository\AccountRepository;
 use Ramsey\Uuid\Uuid;
@@ -27,8 +26,9 @@ class GetAccountTest extends TestCase {
 
         self::assertEquals($account_id, $get_account->id);
         self::assertSame(0, $get_account->version);
-        self::assertEquals(new Money(0, 1), $get_account->debit_amount);
-        self::assertEquals(new Money(0, 1), $get_account->credit_amount);
+        self::assertSame(1, $get_account->ledger_type);
+        self::assertEquals(0, $get_account->debit_amount);
+        self::assertEquals(0, $get_account->credit_amount);
     }
 
     public function testGetAccountWithMultipleVersions(): void {
@@ -42,8 +42,9 @@ class GetAccountTest extends TestCase {
 
         self::assertEquals($account_id, $get_account->id);
         self::assertSame(1, $get_account->version);
-        self::assertEquals(new Money(0, 1), $get_account->debit_amount);
-        self::assertEquals(new Money(100, 1), $get_account->credit_amount);
+        self::assertSame(1, $get_account->ledger_type);
+        self::assertEquals(0, $get_account->debit_amount);
+        self::assertEquals(100, $get_account->credit_amount);
     }
 
     public function testGetAccountForNonExistentAccount_ShouldThrowError(): void {
@@ -78,7 +79,8 @@ class GetAccountTest extends TestCase {
                         Uuid::uuid4(),
                         $debit_account_id,
                         $account_id,
-                        new Money($amount, 1),
+                        1,
+                        $amount,
                         (object)[]
                     )
                 ])

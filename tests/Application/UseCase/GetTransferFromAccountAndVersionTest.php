@@ -4,7 +4,6 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
 use App\Application\UseCase\GetTransferFromAccountAndVersion;
-use App\Domain\Entity\Money;
 use App\Domain\Repository\TransferNotFound;
 use Tests\Support\TransferUtils;
 use Tests\TestCase;
@@ -25,7 +24,8 @@ class GetTransferFromAccountAndVersionTest extends TestCase {
             1,
             $credit_account_id,
             1,
-            new Money(100, 1),
+            1,
+            100,
             (object)[],
             $this->getNow(),
         ), $response);
@@ -44,7 +44,8 @@ class GetTransferFromAccountAndVersionTest extends TestCase {
             1,
             $credit_account_id,
             1,
-            new Money(100, 1),
+            1,
+            100,
             (object)[],
             $this->getNow(),
         ), $response);

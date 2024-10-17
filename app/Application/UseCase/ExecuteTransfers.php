@@ -55,8 +55,8 @@ readonly class ExecuteTransfers {
             }
             $debit_account = $list_of_accounts_by_id[$transfer_dto->debit_account_id];
             $credit_account = $list_of_accounts_by_id[$transfer_dto->credit_account_id];
-            $debit_account = $debit_account->debit($transfer_dto->amount);
-            $credit_account = $credit_account->credit($transfer_dto->amount);
+            $debit_account = $debit_account->debit($transfer_dto->ledger_type, $transfer_dto->amount);
+            $credit_account = $credit_account->credit($transfer_dto->ledger_type, $transfer_dto->amount);
             $this->validateConditionals($debit_account, $credit_account, $transfer_dto->transfer_id, $transfer_dto->conditionals);
             $transfer = $transfer_dto->intoTransfer($debit_account->getVersion(), $credit_account->getVersion());
             $list_of_transfers_to_create[] = $transfer;

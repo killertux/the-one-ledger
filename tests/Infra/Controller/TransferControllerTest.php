@@ -2,7 +2,6 @@
 
 namespace Tests\Infra\Controller;
 
-use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\Support\TransferUtils;
@@ -25,7 +24,7 @@ class TransferControllerTest extends TestCase {
                     'transfer_id' => $transfer_1_id,
                     'debit_account_id' => $account_1_id,
                     'credit_account_id' => $account_2_id,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => (object)['description' => 'A description']
                 ],
@@ -33,7 +32,7 @@ class TransferControllerTest extends TestCase {
                     'transfer_id' => $transfer_2_id,
                     'debit_account_id' => $account_1_id,
                     'credit_account_id' => $account_2_id,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 300,
                     'metadata' => (object)['description' => 'A description']
                 ],
@@ -47,7 +46,7 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $account_1_id,
                         'version' => 1,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'debit_amount' => 100,
                         'credit_amount' => 0,
                         'balance' => -100,
@@ -56,7 +55,7 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $account_2_id,
                         'version' => 1,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'debit_amount' => 0,
                         'credit_amount' => 100,
                         'balance' => 100,
@@ -65,7 +64,7 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $account_1_id,
                         'version' => 2,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'debit_amount' => 400,
                         'credit_amount' => 0,
                         'balance' => -400,
@@ -74,7 +73,7 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $account_2_id,
                         'version' => 2,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'debit_amount' => 0,
                         'credit_amount' => 400,
                         'balance' => 400,
@@ -89,7 +88,7 @@ class TransferControllerTest extends TestCase {
                         'debit_version' => 1,
                         'credit_account_id' => $account_2_id,
                         'credit_version' => 1,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'amount' => 100,
                         'metadata' => (object)['description' => 'A description'],
                         'created_at' => $this->getNow()->toIso8601String(),
@@ -100,7 +99,7 @@ class TransferControllerTest extends TestCase {
                         'debit_version' => 2,
                         'credit_account_id' => $account_2_id,
                         'credit_version' => 2,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'amount' => 300,
                         'metadata' => (object)['description' => 'A description'],
                         'created_at' => $this->getNow()->toIso8601String(),
@@ -119,7 +118,7 @@ class TransferControllerTest extends TestCase {
                     'transfer_id' => Uuid::uuid4(),
                     'debit_account_id' => $account_1_id,
                     'credit_account_id' => $account_1_id,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => (object)['description' => 'A description']
                 ],
@@ -150,7 +149,7 @@ class TransferControllerTest extends TestCase {
                     'debit_version' => 1,
                     'credit_account_id' => $account_2_id,
                     'credit_version' => 1,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => [],
                     'created_at' => $this->getNow()->toIso8601String(),
@@ -175,9 +174,9 @@ class TransferControllerTest extends TestCase {
         $debit_account_id_1 = $this->createAccount();
         $debit_account_id_2 = $this->createAccount();
         $credit_account_id = $this->createAccount();
-        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id, new Money(100, 1));
-        $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id, new Money(150, 1));
-        $this->createTransfer($debit_account_id_1, $credit_account_id, new Money(100, 1));
+        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id, 100);
+        $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id, 150);
+        $this->createTransfer($debit_account_id_1, $credit_account_id, 100);
 
         $response = $this->get("/api/v1/transfer/credit/$credit_account_id?limit=2&beforeVersion=3");
 
@@ -190,7 +189,7 @@ class TransferControllerTest extends TestCase {
                     'debit_version' => 1,
                     'credit_account_id' => $credit_account_id,
                     'credit_version' => 2,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 150,
                     'metadata' => [],
                     'created_at' => $this->getNow()->toIso8601String(),
@@ -201,7 +200,7 @@ class TransferControllerTest extends TestCase {
                     'debit_version' => 1,
                     'credit_account_id' => $credit_account_id,
                     'credit_version' => 1,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => [],
                     'created_at' => $this->getNow()->toIso8601String(),
@@ -214,9 +213,9 @@ class TransferControllerTest extends TestCase {
         $debit_account_id = $this->createAccount();
         $credit_account_id_1 = $this->createAccount();
         $credit_account_id_2 = $this->createAccount();
-        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id_1, new Money(100, 1));
-        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id_2, new Money(150, 1));
-        $this->createTransfer($debit_account_id, $credit_account_id_1, new Money(100, 1));
+        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id_1, 100);
+        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id_2, 150);
+        $this->createTransfer($debit_account_id, $credit_account_id_1, 100);
 
         $response = $this->get("/api/v1/transfer/debit/$debit_account_id?limit=2&beforeVersion=3");
 
@@ -229,7 +228,7 @@ class TransferControllerTest extends TestCase {
                     'debit_version' => 2,
                     'credit_account_id' => $credit_account_id_2,
                     'credit_version' => 1,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 150,
                     'metadata' => [],
                     'created_at' => $this->getNow()->toIso8601String(),
@@ -240,7 +239,7 @@ class TransferControllerTest extends TestCase {
                     'debit_version' => 1,
                     'credit_account_id' => $credit_account_id_1,
                     'credit_version' => 1,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => [],
                     'created_at' => $this->getNow()->toIso8601String(),
@@ -264,7 +263,7 @@ class TransferControllerTest extends TestCase {
                 'debit_version' => 1,
                 'credit_account_id' => $credit_account_id,
                 'credit_version' => 1,
-                'currency' => 1,
+                'ledger_type' => 1,
                 'amount' => 100,
                 'metadata' => [],
                 'created_at' => $this->getNow()->toIso8601String(),
@@ -287,7 +286,7 @@ class TransferControllerTest extends TestCase {
                 'debit_version' => 1,
                 'credit_account_id' => $credit_account_id,
                 'credit_version' => 1,
-                'currency' => 1,
+                'ledger_type' => 1,
                 'amount' => 100,
                 'metadata' => [],
                 'created_at' => $this->getNow()->toIso8601String(),
@@ -307,7 +306,7 @@ class TransferControllerTest extends TestCase {
                     'transfer_id' => $transfer_id,
                     'debit_account_id' => $account_1_id,
                     'credit_account_id' => $account_2_id,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => (object)['description' => 'A description'],
                     'conditionals' => [
@@ -327,7 +326,7 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $account_1_id,
                         'version' => 1,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'debit_amount' => 100,
                         'credit_amount' => 0,
                         'balance' => -100,
@@ -336,7 +335,7 @@ class TransferControllerTest extends TestCase {
                     [
                         'id' => $account_2_id,
                         'version' => 1,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'debit_amount' => 0,
                         'credit_amount' => 100,
                         'balance' => 100,
@@ -350,7 +349,7 @@ class TransferControllerTest extends TestCase {
                         'debit_version' => 1,
                         'credit_account_id' => $account_2_id,
                         'credit_version' => 1,
-                        'currency' => 1,
+                        'ledger_type' => 1,
                         'amount' => 100,
                         'metadata' => (object)['description' => 'A description'],
                         'created_at' => $this->getNow()->toIso8601String(),
@@ -372,7 +371,7 @@ class TransferControllerTest extends TestCase {
                     'transfer_id' => $transfer_id,
                     'debit_account_id' => $account_1_id,
                     'credit_account_id' => $account_2_id,
-                    'currency' => 1,
+                    'ledger_type' => 1,
                     'amount' => 100,
                     'metadata' => (object)['description' => 'A description'],
                     'conditionals' => [

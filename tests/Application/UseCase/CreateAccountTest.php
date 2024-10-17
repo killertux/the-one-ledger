@@ -4,7 +4,6 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\CreateAccount;
 use App\Application\UseCase\DTO\CreateAccountDto;
-use App\Domain\Entity\Money;
 use App\Domain\Repository\AccountAlreadyExists;
 use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
@@ -19,8 +18,9 @@ class CreateAccountTest extends TestCase {
 
         self::assertEquals($account_id, $account_dto->id);
         self::assertSame(0, $account_dto->version);
-        self::assertEquals(new Money(0, 1), $account_dto->debit_amount);
-        self::assertEquals(new Money(0, 1), $account_dto->credit_amount);
+        self::assertSame(1, $account_dto->ledger_type);
+        self::assertEquals(0, $account_dto->debit_amount);
+        self::assertEquals(0, $account_dto->credit_amount);
         self::assertEquals($this->getNow(), $account_dto->datetime);
     }
 

@@ -19,7 +19,7 @@ return new class extends Migration
             debit_version INT NOT NULL,
             credit_account_id UUID NOT NULL,
             credit_version INT NOT NULL,
-            currency INT NOT NULL,
+            ledger_type INT NOT NULL,
             amount BIGINT NOT NULL,
             metadata JSON NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

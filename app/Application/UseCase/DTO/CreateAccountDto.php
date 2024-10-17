@@ -8,7 +8,7 @@ readonly class CreateAccountDto {
 
     public function __construct(
         public UuidInterface $account_id,
-        public int $currency,
+        public int $ledger_type,
     )
     {}
 }

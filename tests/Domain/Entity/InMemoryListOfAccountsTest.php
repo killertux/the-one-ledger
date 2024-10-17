@@ -4,7 +4,6 @@ namespace Tests\Domain\Entity;
 
 use App\Domain\Entity\Account;
 use App\Domain\Entity\InMemoryListOfAccounts;
-use App\Domain\Entity\Money;
 use App\Domain\Repository\AccountNotFound;
 use App\Domain\Repository\AccountRepository;
 use Ramsey\Uuid\Uuid;
@@ -47,6 +46,6 @@ class InMemoryListOfAccountsTest extends TestCase {
     }
 
     private function createAccount(): Account {
-        return new Account(Uuid::uuid4(), 1, new Money(100, 1), new Money(100, 1));
+        return new Account(Uuid::uuid4(), 1, 1, 100, 100);
     }
 }

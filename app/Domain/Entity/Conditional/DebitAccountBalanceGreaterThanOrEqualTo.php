@@ -11,7 +11,7 @@ readonly class DebitAccountBalanceGreaterThanOrEqualTo implements Conditional {
     ) {}
 
     public function check(Account $debit_account, Account $credit_account): bool {
-        $balance = $debit_account->getCreditAmount()->getAmount() - $debit_account->getDebitAmount()->getAmount();
+        $balance = $debit_account->getCreditAmount() - $debit_account->getDebitAmount();
         return $balance >= $this->limit;
     }
 

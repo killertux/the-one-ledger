@@ -4,7 +4,6 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\TransferDto;
 use App\Application\UseCase\ListTransfers;
-use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\Support\TransferUtils;
@@ -19,9 +18,9 @@ class ListTransfersTest extends TestCase {
         $debit_account_id_2 = $this->createAccount();
         $credit_account_id_1 = $this->createAccount();
         $credit_account_id_2 = $this->createAccount();
-        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id_1, new Money(100, 1));
-        $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id_1, new Money(200, 1));
-        $this->createTransfer($debit_account_id_2, $credit_account_id_2, new Money(200, 1));
+        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id_1, 100);
+        $transfer_id_2 = $this->createTransfer($debit_account_id_2, $credit_account_id_1, 200);
+        $this->createTransfer($debit_account_id_2, $credit_account_id_2, 200);
 
         $response = (new ListTransfers($this->getTransferRepository()))
             ->executeFromCreditAccount($credit_account_id_1, 100);
@@ -34,7 +33,8 @@ class ListTransfersTest extends TestCase {
                     1,
                     $credit_account_id_1,
                     2,
-                    new Money(200, 1),
+                    1,
+                    200,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -44,7 +44,8 @@ class ListTransfersTest extends TestCase {
                     1,
                     $credit_account_id_1,
                     1,
-                    new Money(100, 1),
+                    1,
+                    100,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -56,9 +57,9 @@ class ListTransfersTest extends TestCase {
     public function testListTransfersFromCreditAccount_ShouldRespectLimitAndBeforeVersion(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
-        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(100, 1));
-        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(200, 1));
-        $this->createTransfer($debit_account_id, $credit_account_id, new Money(300, 1));
+        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, 100);
+        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id, 200);
+        $this->createTransfer($debit_account_id, $credit_account_id, 300);
 
         $response = (new ListTransfers($this->getTransferRepository()))
             ->executeFromCreditAccount($credit_account_id, 2, 3);
@@ -71,7 +72,8 @@ class ListTransfersTest extends TestCase {
                     2,
                     $credit_account_id,
                     2,
-                    new Money(200, 1),
+                    1,
+                    200,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -81,7 +83,8 @@ class ListTransfersTest extends TestCase {
                     1,
                     $credit_account_id,
                     1,
-                    new Money(100, 1),
+                    1,
+                    100,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -109,9 +112,9 @@ class ListTransfersTest extends TestCase {
         $debit_account_id_2 = $this->createAccount();
         $credit_account_id_1 = $this->createAccount();
         $credit_account_id_2 = $this->createAccount();
-        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id_1, new Money(100, 1));
-        $transfer_id_2 = $this->createTransfer($debit_account_id_1, $credit_account_id_2, new Money(200, 1));
-        $this->createTransfer($debit_account_id_2, $credit_account_id_2, new Money(200, 1));
+        $transfer_id_1 = $this->createTransfer($debit_account_id_1, $credit_account_id_1, 100);
+        $transfer_id_2 = $this->createTransfer($debit_account_id_1, $credit_account_id_2, 200);
+        $this->createTransfer($debit_account_id_2, $credit_account_id_2, 200);
 
         $response = (new ListTransfers($this->getTransferRepository()))
             ->executeFromDebitAccount($debit_account_id_1, 100);
@@ -124,7 +127,8 @@ class ListTransfersTest extends TestCase {
                     2,
                     $credit_account_id_2,
                     1,
-                    new Money(200, 1),
+                    1,
+                    200,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -134,7 +138,8 @@ class ListTransfersTest extends TestCase {
                     1,
                     $credit_account_id_1,
                     1,
-                    new Money(100, 1),
+                    1,
+                    100,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -146,9 +151,9 @@ class ListTransfersTest extends TestCase {
     public function testListTransfersFromDebitAccount_ShouldRespectLimitAndBeforeVersion(): void {
         $debit_account_id = $this->createAccount();
         $credit_account_id = $this->createAccount();
-        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(100, 1));
-        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id, new Money(200, 1));
-        $this->createTransfer($debit_account_id, $credit_account_id, new Money(300, 1));
+        $transfer_id_1 = $this->createTransfer($debit_account_id, $credit_account_id, 100);
+        $transfer_id_2 = $this->createTransfer($debit_account_id, $credit_account_id, 200);
+        $this->createTransfer($debit_account_id, $credit_account_id, 300);
 
         $response = (new ListTransfers($this->getTransferRepository()))
             ->executeFromDebitAccount($debit_account_id, 2, 3);
@@ -161,7 +166,8 @@ class ListTransfersTest extends TestCase {
                     2,
                     $credit_account_id,
                     2,
-                    new Money(200, 1),
+                    1,
+                    200,
                     (object)[],
                     $this->getNow(),
                 ),
@@ -171,7 +177,8 @@ class ListTransfersTest extends TestCase {
                     1,
                     $credit_account_id,
                     1,
-                    new Money(100, 1),
+                    1,
+                    100,
                     (object)[],
                     $this->getNow(),
                 ),

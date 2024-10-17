@@ -4,7 +4,6 @@ namespace Tests\Application\UseCase;
 
 use App\Application\UseCase\DTO\AccountDto;
 use App\Application\UseCase\ListAccount;
-use App\Domain\Entity\Money;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\TestCase;
@@ -32,8 +31,9 @@ class ListAccountTest extends TestCase {
             new AccountDto(
                 $account_id,
                 0,
-                new Money(0, 1),
-                new Money(0, 1),
+                1,
+                0,
+                0,
                 $this->getNow(),
             )
         ], $response);
@@ -53,15 +53,17 @@ class ListAccountTest extends TestCase {
             new AccountDto(
                 $account_id,
                 2,
-                new Money(0, 1),
-                new Money(300, 1),
+                1,
+                0,
+                300,
                 $this->getNow(),
             ),
             new AccountDto(
                 $account_id,
                 1,
-                new Money(0, 1),
-                new Money(100, 1),
+                1,
+                0,
+                100,
                 $this->getNow(),
             ),
         ], $response);
@@ -81,15 +83,17 @@ class ListAccountTest extends TestCase {
             new AccountDto(
                 $account_id,
                 1,
-                new Money(0, 1),
-                new Money(100, 1),
+                1,
+                0,
+                100,
                 $this->getNow(),
             ),
             new AccountDto(
                 $account_id,
                 0,
-                new Money(0, 1),
-                new Money(0, 1),
+                1,
+                0,
+                0,
                 $this->getNow(),
             ),
         ], $response);

@@ -13,8 +13,7 @@ use App\Application\UseCase\ListTransfers;
 use App\Application\UseCase\OptimisticLockError;
 use App\Application\UseCase\SameAccountTransfer;
 use App\Domain\Entity\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
-use App\Domain\Entity\DifferentCurrency;
-use App\Domain\Entity\Money;
+use App\Domain\Entity\DifferentLedgerType;
 use App\Domain\Repository\AccountNotFound;
 use App\Domain\Repository\AccountRepository;
 use App\Domain\Repository\TransferNotFound;
@@ -41,7 +40,8 @@ readonly class TransferController {
                         Uuid::fromString($transfer['transfer_id']),
                         Uuid::fromString($transfer['debit_account_id']),
                         Uuid::fromString($transfer['credit_account_id']),
-                        new Money($transfer['amount'], $transfer['currency']),
+                        (int)$transfer['ledger_type'],
+                        (int)$transfer['amount'],
                         (object) $transfer['metadata'],
                         self::buildConditionals($transfer['conditionals'] ?? []),
                     ))
@@ -135,7 +135,7 @@ readonly class TransferController {
         } catch (DuplicatedTransfer $duplicated_transfer) {
             return response()
                 ->json(['error' => $duplicated_transfer->getMessage()], 409);
-        } catch (DifferentCurrency $exception) {
+        } catch (DifferentLedgerType $exception) {
             return response()
                 ->json(['error' => $exception->getMessage()], 422);
         } catch (SameAccountTransfer $exception) {

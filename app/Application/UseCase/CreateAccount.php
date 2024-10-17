@@ -14,7 +14,7 @@ readonly class CreateAccount {
 
     public function execute(CreateAccountDto $create_account_dto): AccountDto {
         return AccountDto::fromAccount(
-            $this->account_repository->createAccount($create_account_dto->account_id, $create_account_dto->currency)
+            $this->account_repository->createAccount($create_account_dto->account_id, $create_account_dto->ledger_type)
         );
     }
 

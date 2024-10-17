@@ -9,27 +9,30 @@ use Tests\TestCase;
 class AccountControllerTest extends TestCase {
     use AccountUtils;
 
-	public function testCreateAccount(): void {
+    private $assert_exact_json;
+
+    public function testCreateAccount(): void {
         $account_id = Uuid::uuid4();
         $response = $this->postJson(
             '/api/v1/account',
             [
                 'account_id' => $account_id,
-                'currency' => 1,
+                'ledger_type' => 1,
             ]
         );
         self::assertEquals(200, $response->getStatusCode());
-        $response->assertExactJson(
+        $this->assert_exact_json = $response->assertExactJson(
             [
                 'id' => $account_id,
                 'version' => 0,
-                'currency' => 1,
+                'ledger_type' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 0,
                 'balance' => 0,
                 'datetime' => $this->getNow()->toIso8601String(),
             ]
         );
+        $this->assert_exact_json;
     }
 
     public function testCreateAnExistentAccount(): void {
@@ -38,7 +41,7 @@ class AccountControllerTest extends TestCase {
             '/api/v1/account',
             [
                 'account_id' => $account_id,
-                'currency' => 1,
+                'ledger_type' => 1,
             ]
         );
         self::assertEquals(409, $response->getStatusCode());
@@ -55,7 +58,7 @@ class AccountControllerTest extends TestCase {
             [
                 'id' => $account_id,
                 'version' => 0,
-                'currency' => 1,
+                'ledger_type' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 0,
                 'balance' => 0,
@@ -86,7 +89,7 @@ class AccountControllerTest extends TestCase {
             [
                 'id' => $account_id,
                 'version' => 1,
-                'currency' => 1,
+                'ledger_type' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 100,
                 'balance' => 100,
@@ -95,7 +98,7 @@ class AccountControllerTest extends TestCase {
             [
                 'id' => $account_id,
                 'version' => 0,
-                'currency' => 1,
+                'ledger_type' => 1,
                 'debit_amount' => 0,
                 'credit_amount' => 0,
                 'balance' => 0,
