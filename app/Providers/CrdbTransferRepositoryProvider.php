@@ -6,7 +6,7 @@ use App\Domain\Repository\TransferRepository;
 use App\Infra\Repository\Transfer\CrdbTransferRepository;
 use Illuminate\Support\ServiceProvider;
 
-class TransferRepositoryProvider extends ServiceProvider
+class CrdbTransferRepositoryProvider extends ServiceProvider
 {
     public function register(): void
     {

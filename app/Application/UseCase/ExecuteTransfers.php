@@ -11,6 +11,7 @@ use App\Domain\Entity\Conditional\Conditional;
 use App\Domain\Entity\InMemoryListOfAccounts;
 use App\Domain\Entity\Transfer;
 use App\Domain\Repository\AccountRepository;
+use App\Domain\Repository\Transaction;
 use App\Domain\Repository\TransferRepository;
 use App\Infra\Utils\Sleeper;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -23,6 +24,7 @@ readonly class ExecuteTransfers {
     public function __construct(
         private AccountRepository $account_repository,
         private TransferRepository $transfer_repository,
+        private Transaction $transaction,
         private Sleeper $sleeper,
     ) {}
 
@@ -66,22 +68,20 @@ readonly class ExecuteTransfers {
             $list_of_accounts_by_id[$debit_account->getId()] = $debit_account;
         }
 
-        return DB::transaction(function () use ($list_of_accounts_to_create, $list_of_transfers_to_create) {
-            try {
-                $this->account_repository->createAccountMovements($list_of_accounts_to_create);
-            } catch (UniqueConstraintViolationException $exception) {
-                throw new OptimisticLockError('Optimistic lock error. Try again later', previous: $exception);
-            }
-            try {
-                $this->transfer_repository->createTransfers($list_of_transfers_to_create);
-            } catch (UniqueConstraintViolationException $exception) {
-                throw new DuplicatedTransfer('One of the transfers is duplicated', previous: $exception);
-            }
-            return new ExecuteTransfersResponseDto(
+        $this->transaction->begin();
+        try {
+            $this->account_repository->createAccountMovements($this->transaction, $list_of_accounts_to_create);
+            $this->transfer_repository->createTransfers($this->transaction, $list_of_transfers_to_create);
+            $result =  new ExecuteTransfersResponseDto(
                 \array_map(fn(Account $account) => AccountDto::fromAccount($account), $list_of_accounts_to_create),
                 \array_map(fn(Transfer $transfer) => TransferDto::fromTransfer($transfer), $list_of_transfers_to_create),
             );
-        }, 3);
+            $this->transaction->commit();
+        } catch (\Throwable $throwable) {
+            $this->transaction->rollback();
+            throw $throwable;
+        }
+        return $result;
     }
 
 

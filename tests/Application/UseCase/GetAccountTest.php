@@ -72,7 +72,7 @@ class GetAccountTest extends TestCase {
 
     private function creditAmountToAccount(AccountRepository $account_repository, UuidInterface $account_id, int $amount): void {
        $debit_account_id = $this->createAccount();
-        (new ExecuteTransfers($account_repository, $this->getTransferRepository(), $this->getSleeper()))
+        (new ExecuteTransfers($account_repository, $this->getTransferRepository(), $this->getTransaction(), $this->getSleeper()))
             ->execute(
                 new CreateTransferDtoCollection([
                     new CreateTransferDto(

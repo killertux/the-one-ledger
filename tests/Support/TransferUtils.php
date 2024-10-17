@@ -16,7 +16,7 @@ trait TransferUtils {
         $debit_account_id = $debit_account_id ?? $this->createAccount();
         $transfer_id = Uuid::uuid4();
 
-        (new ExecuteTransfers($this->getAccountRepository(), $this->getTransferRepository(), $this->getSleeper()))
+        (new ExecuteTransfers($this->getAccountRepository(), $this->getTransferRepository(), $this->getTransaction(), $this->getSleeper()))
             ->execute(
                 new CreateTransferDtoCollection([
                     new CreateTransferDto(

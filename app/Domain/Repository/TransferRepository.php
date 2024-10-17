@@ -7,8 +7,7 @@ use Ramsey\Uuid\UuidInterface;
 
 interface TransferRepository {
 
-    /** @param Transfer[] $transfers */
-    public function createTransfers(array $transfers): void;
+    public function createTransfers(Transaction $transaction, array $transfers): void;
 
     public function getTransfer(UuidInterface $transfer_id): Transfer;
 

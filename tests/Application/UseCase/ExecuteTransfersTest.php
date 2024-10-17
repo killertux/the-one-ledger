@@ -17,7 +17,6 @@ use App\Domain\Entity\Account;
 use App\Domain\Entity\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
 use App\Domain\Repository\AccountRepository;
 use EBANX\Stream\Stream;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Ramsey\Uuid\Uuid;
 use Tests\Support\AccountUtils;
 use Tests\TestCase;
@@ -97,11 +96,11 @@ class ExecuteTransfersTest extends TestCase {
         $account_repository = $this->createMock(AccountRepository::class);
         $account_repository->expects($this->exactly(5))
             ->method('createAccountMovements')
-            ->with([
+            ->with($this->getTransaction(), [
                 new Account($account_1_id, 1, 1, 100, 0, $this->getNow()),
                 new Account($account_2_id, 1, 1, 0, 100, $this->getNow()),
             ])
-            ->willThrowException(new UniqueConstraintViolationException('', '', [], new \Exception()));
+            ->willThrowException(new OptimisticLockError('Optimistic lock error. Try again later'));
         $account_1 = new Account($account_1_id, 0, 1, 0, 0, $this->getNow());
         $account_2 = new Account($account_2_id, 0, 1, 0, 0, $this->getNow());
         $account_repository->method('getAccount')
@@ -237,6 +236,7 @@ class ExecuteTransfersTest extends TestCase {
         return new ExecuteTransfers(
             $account_repository ?? $this->getAccountRepository(),
             $this->getTransferRepository(),
+            $this->getTransaction(),
             $this->getSleeper()
         );
     }

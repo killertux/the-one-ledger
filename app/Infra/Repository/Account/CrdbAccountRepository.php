@@ -2,10 +2,12 @@
 
 namespace App\Infra\Repository\Account;
 
+use App\Application\UseCase\OptimisticLockError;
 use App\Domain\Entity\Account;
 use App\Domain\Repository\AccountAlreadyExists;
 use App\Domain\Repository\AccountNotFound;
 use App\Domain\Repository\AccountRepository;
+use App\Domain\Repository\Transaction;
 use Cake\Chronos\Chronos;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -27,20 +29,24 @@ readonly class CrdbAccountRepository implements AccountRepository {
         return $this->getAccountFromRow($rows[0]);
     }
 
-    public function createAccountMovements(array $accounts): void {
-        DB::table('accounts')->insert(
-            array_map(
-                fn(Account $account) => [
-                    'id' => $account->getId(),
-                    'version' => $account->getVersion(),
-                    'ledger_type' => $account->getLedgerType(),
-                    'debit_amount' => $account->getDebitAmount(),
-                    'credit_amount' => $account->getCreditAmount(),
-                    'datetime' => $account->getDatetime()
-                ],
-                $accounts
-            )
-        );
+    public function createAccountMovements(Transaction $transaction, array $accounts): void {
+        try {
+            DB::table('accounts')->insert(
+                array_map(
+                    fn(Account $account) => [
+                        'id' => $account->getId(),
+                        'version' => $account->getVersion(),
+                        'ledger_type' => $account->getLedgerType(),
+                        'debit_amount' => $account->getDebitAmount(),
+                        'credit_amount' => $account->getCreditAmount(),
+                        'datetime' => $account->getDatetime()
+                    ],
+                    $accounts
+                )
+            );
+        } catch (UniqueConstraintViolationException $exception) {
+            throw new OptimisticLockError('Optimistic lock error. Try again later', previous: $exception);
+        }
     }
 
     public function createAccount(UuidInterface $account_id, int $ledger_type): Account {

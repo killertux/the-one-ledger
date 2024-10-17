@@ -13,8 +13,7 @@ interface AccountRepository {
 
     public function listAccount(UuidInterface $id, int $limit, ?int $before_version = null): array;
 
-    /** @param Account[] $accounts */
-    public function createAccountMovements(array $accounts): void;
+    public function createAccountMovements(Transaction $transaction, array $accounts): void;
 
     public function createAccount(UuidInterface $account_id, int $ledger_type): Account;
 }

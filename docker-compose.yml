@@ -38,3 +38,11 @@ services:
             - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data"
         networks:
             - ledger
+    dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+            - "8002:8000"
+        networks:
+            - ledger
+        volumes:
+            - "./docker/dynamodb:/home/dynamodblocal/data"

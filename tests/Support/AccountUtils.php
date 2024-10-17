@@ -21,7 +21,7 @@ trait AccountUtils {
 
     private function creditAmountToAccount(UuidInterface $account_id, int $amount): void {
         $debit_account_id = $this->createAccount();
-        (new ExecuteTransfers($this->getAccountRepository(), $this->getTransferRepository(), $this->getSleeper()))
+        (new ExecuteTransfers($this->getAccountRepository(), $this->getTransferRepository(), $this->getTransaction(), $this->getSleeper()))
             ->execute(
                 new CreateTransferDtoCollection([
                     new CreateTransferDto(

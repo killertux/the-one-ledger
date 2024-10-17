@@ -16,6 +16,7 @@ use App\Domain\Entity\Conditional\DebitAccountBalanceGreaterThanOrEqualTo;
 use App\Domain\Entity\DifferentLedgerType;
 use App\Domain\Repository\AccountNotFound;
 use App\Domain\Repository\AccountRepository;
+use App\Domain\Repository\Transaction;
 use App\Domain\Repository\TransferNotFound;
 use App\Domain\Repository\TransferRepository;
 use App\Infra\Utils\Sleeper;
@@ -29,6 +30,7 @@ readonly class TransferController {
     public function __construct(
         private AccountRepository $account_repository,
         private TransferRepository $transfer_repository,
+        private Transaction $transaction,
         private Sleeper $sleeper,
     ) {}
 
@@ -47,7 +49,7 @@ readonly class TransferController {
                     ))
                     ->collect();
 
-                return (new ExecuteTransfers($this->account_repository, $this->transfer_repository, $this->sleeper))
+                return (new ExecuteTransfers($this->account_repository, $this->transfer_repository, $this->transaction, $this->sleeper))
                     ->execute(new CreateTransferDtoCollection($transfers));
             },
             201

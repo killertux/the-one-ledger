@@ -2,31 +2,40 @@
 
 namespace App\Infra\Repository\Transfer;
 
+use App\Application\UseCase\DuplicatedTransfer;
 use App\Domain\Entity\Transfer;
+use App\Domain\Repository\Transaction;
 use App\Domain\Repository\TransferNotFound;
 use App\Domain\Repository\TransferRepository;
 use Cake\Chronos\Chronos;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 readonly class CrdbTransferRepository implements TransferRepository {
 
-    /** @param Transfer[] $transfers */
-    public function createTransfers(array $transfers): void {
-        DB::table('transfers')->insert(array_map(function($transfer) {
-            return [
-                'id' => $transfer->getId(),
-                'debit_account_id' => $transfer->getDebitAccountId(),
-                'debit_version' => $transfer->getDebitAccountVersion(),
-                'credit_account_id' => $transfer->getCreditAccountId(),
-                'credit_version' => $transfer->getCreditAccountVersion(),
-                'ledger_type' => $transfer->getLedgerType(),
-                'amount' => $transfer->getAmount(),
-                'metadata' => json_encode($transfer->getMetadata()),
-                'created_at' => $transfer->getCreatedAt(),
-            ];
-        }, $transfers));
+    /** @param Transaction $transaction
+     * @param Transfer[] $transfers
+     */
+    public function createTransfers(Transaction $transaction, array $transfers): void {
+        try {
+            DB::table('transfers')->insert(array_map(function($transfer) {
+                return [
+                    'id' => $transfer->getId(),
+                    'debit_account_id' => $transfer->getDebitAccountId(),
+                    'debit_version' => $transfer->getDebitAccountVersion(),
+                    'credit_account_id' => $transfer->getCreditAccountId(),
+                    'credit_version' => $transfer->getCreditAccountVersion(),
+                    'ledger_type' => $transfer->getLedgerType(),
+                    'amount' => $transfer->getAmount(),
+                    'metadata' => json_encode($transfer->getMetadata()),
+                    'created_at' => $transfer->getCreatedAt(),
+                ];
+            }, $transfers));
+        } catch (UniqueConstraintViolationException $exception) {
+            throw new DuplicatedTransfer('One of the transfers is duplicated', previous: $exception);
+        }
     }
 
     public function getTransfer(UuidInterface $transfer_id): Transfer {

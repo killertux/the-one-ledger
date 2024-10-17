@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Domain\Repository\AccountRepository;
+use App\Domain\Repository\Transaction;
 use App\Domain\Repository\TransferRepository;
 use App\Infra\Utils\Sleeper;
 use Cake\Chronos\Chronos;
@@ -23,6 +24,10 @@ abstract class TestCase extends BaseTestCase {
 
     public function getTransferRepository(): TransferRepository {
         return Facade::getFacadeApplication()->factory(TransferRepository::class)();
+    }
+
+    public function getTransaction(): Transaction {
+        return Facade::getFacadeApplication()->factory(Transaction::class)();
     }
 
     public function getSleeper(): Sleeper {
