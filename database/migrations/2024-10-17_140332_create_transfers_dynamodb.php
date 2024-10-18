@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
+use Aws\DynamoDb\DynamoDbClient;
 use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
-    private readonly \Aws\DynamoDb\DynamoDbClient $db_client;
+    private readonly DynamoDbClient $db_client;
     public function __construct() {
-        $this->db_client = app(\Aws\DynamoDb\DynamoDbClient::class);
+        $this->db_client = app(DynamoDbClient::class);
     }
 
     public function up(): void

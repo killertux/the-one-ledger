@@ -72,16 +72,15 @@ readonly class ExecuteTransfers {
         try {
             $this->account_repository->createAccountMovements($this->transaction, $list_of_accounts_to_create);
             $this->transfer_repository->createTransfers($this->transaction, $list_of_transfers_to_create);
-            $result =  new ExecuteTransfersResponseDto(
-                \array_map(fn(Account $account) => AccountDto::fromAccount($account), $list_of_accounts_to_create),
-                \array_map(fn(Transfer $transfer) => TransferDto::fromTransfer($transfer), $list_of_transfers_to_create),
-            );
             $this->transaction->commit();
         } catch (\Throwable $throwable) {
             $this->transaction->rollback();
             throw $throwable;
         }
-        return $result;
+        return new ExecuteTransfersResponseDto(
+            \array_map(fn(Account $account) => AccountDto::fromAccount($account), $list_of_accounts_to_create),
+            \array_map(fn(Transfer $transfer) => TransferDto::fromTransfer($transfer), $list_of_transfers_to_create),
+        );
     }
 
 
